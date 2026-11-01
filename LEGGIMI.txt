@@ -1,0 +1,21 @@
+EQUILIBRI — Il Potere delle Leggi
+Versione 3.57 MULTIBLOCCO
+
+Questa versione conserva integralmente interfaccia, logica e funzioni della versione monoblocco 3.56.
+La conversione separa i file per facilitare manutenzione e aggiornamenti:
+- index.html: struttura dell'applicazione
+- css/style.css: tutti gli stili e gli adattamenti di navigazione
+- js/app.js: logica completa del gioco
+
+Funzioni parlamentari mantenute:
+- Istruttoria in commissione prima del voto.
+- Emendamenti del Governo durante l'attesa.
+- Decisione del Governo sugli emendamenti autonomi dell'opposizione.
+- Votazione nominale separata alla Camera e al Senato.
+- Registrazione nello storico di voti, astensioni ed esiti di entrambe le Camere.
+- Promulgazione solo dopo l'approvazione di entrambe le Camere.
+Sono conservate anche le altre funzioni della 3.56: economia, governo, coalizioni, ministeri, eventi, società, diplomazia, salvataggi e dashboard.
+
+AVVIO
+Estrarre tutto lo ZIP mantenendo le cartelle css e js, quindi aprire index.html con un browser moderno.
+Non spostare index.html fuori dalla cartella e non rinominare css/style.css o js/app.js.
