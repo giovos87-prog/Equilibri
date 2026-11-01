@@ -1,0 +1,21 @@
+EQUILIBRI — PWA v3.53
+=====================
+
+Questa confezione mantiene il gioco HTML originale v3.53 e aggiunge:
+- manifest PWA installabile;
+- icone Android;
+- service worker per l'apertura offline dopo il primo caricamento;
+- avvio in modalità standalone e orientamento landscape.
+
+INSTALLAZIONE SU ANDROID
+1. Pubblica questa cartella su un hosting HTTPS (ad esempio GitHub Pages).
+2. Apri l'indirizzo del gioco con Chrome su Android.
+3. Apri il menu ⋮ e scegli "Installa app" oppure "Aggiungi a schermata Home".
+4. Avvia Equilibri dalla nuova icona.
+5. Per conservare una partita, usa sempre "Salva partita" nel gioco e conserva il file esportato.
+
+NOTA IMPORTANTE
+- Per installazione PWA e service worker è necessario HTTPS (GitHub Pages va bene).
+- La prima apertura richiede una connessione; dopo il completamento della cache, il gioco può aprirsi offline.
+- I salvataggi automatici restano nel browser/dispositivo; usa l'esportazione per trasferirli o conservarli.
+- Non è stato modificato il motore di gioco né il contenuto delle meccaniche della v3.53.
