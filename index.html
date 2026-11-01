@@ -1,0 +1,2494 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Equilibri 3.5 — Il Potere delle Leggi</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700;800&family=Cormorant+Garamond:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ===== EQUILIBRI 3.5 — Il Potere delle Leggi ===== */
+:root {
+  --green-deep: #0c2a22;
+  --green-mid: #12392d;
+  --green-light: #1d5a44;
+  --gold: #e0b34a;
+  --gold-light: #f5d98a;
+  --gold-dark: #8a6420;
+  --parchment: #f1e3c0;
+  --parchment-dark: #d8c18a;
+  --red-deep: #6e1010;
+  --text-light: #f6ecd0;
+  --text-dark: #2c1d0c;
+  --pos: #3fbf5a;
+  --neg: #d6403a;
+  --font-title: 'Cinzel', 'Trajan Pro', Georgia, serif;
+  --font-body: 'Cormorant Garamond', Georgia, serif;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  height: 100%;
+  background: #05100c;
+  color: var(--text-light);
+  font-family: var(--font-body);
+  overflow: hidden;
+}
+
+#game {
+  display: grid;
+  grid-template-columns: 260px 1fr 400px;
+  grid-template-rows: 82px 1fr;
+  grid-template-areas:
+    "topbar topbar topbar"
+    "sidebar main right";
+  position: absolute; left: 0; top: 0;
+  width: 1672px;
+  height: 941px;
+  transform-origin: 0 0;
+  overflow: hidden;
+  background: radial-gradient(ellipse at 50% 30%, #1a4a3a 0%, #0a2019 70%);
+}
+#main, #right { min-height: 0; min-width: 0; }
+
+/* ===== TOP BAR ===== */
+#topbar {
+  grid-area: topbar;
+  display: flex;
+  align-items: stretch;
+  background: linear-gradient(180deg, #143d2f 0%, #0b2a21 100%);
+  border-bottom: 3px solid var(--gold-dark);
+  box-shadow: 0 4px 14px rgba(0,0,0,.6), inset 0 -1px 0 var(--gold);
+  position: relative;
+  z-index: 10;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 0 28px 0 18px;
+  min-width: 420px;
+}
+.brand svg { width: 70px; height: 74px; flex-shrink: 0; filter: drop-shadow(0 2px 4px #000); }
+.brand-title {
+  font-family: var(--font-title);
+  font-weight: 800;
+  font-size: 34px;
+  color: var(--gold-light);
+  text-shadow: 0 2px 3px #000, 0 0 8px rgba(224,179,74,.35);
+  letter-spacing: 1px;
+  line-height: 1;
+}
+.brand-sub {
+  font-family: var(--font-title);
+  font-size: 21px;
+  color: var(--gold);
+  margin-top: 4px;
+  text-shadow: 0 1px 2px #000;
+}
+
+.top-cell {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 18px;
+  border-left: 1px solid rgba(224,179,74,.35);
+  background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(0,0,0,.18));
+}
+.top-cell .label { font-family: var(--font-title); font-size: 17px; color: var(--text-light); font-weight: 700; }
+.top-cell .value { font-family: var(--font-title); font-size: 20px; font-weight: 700; color: var(--text-light); }
+.top-cell .value.pos { color: #5fe07a; }
+.top-cell .stack { display: flex; flex-direction: column; line-height: 1.15; }
+.top-cell .small { font-size: 14px; color: var(--gold-light); font-family: var(--font-title); }
+.top-cell svg { width: 40px; height: 40px; }
+.top-cell.kingdom { padding-left: 22px; }
+.top-cell.kingdom .label { font-size: 20px; color: var(--gold-light); }
+.top-cell.date { background: linear-gradient(180deg, #5a1d1d, #3a0f0f); }
+
+.top-spacer { flex: 1; }
+.top-actions { display: flex; align-items: center; gap: 12px; padding: 0 16px; border-left: 1px solid rgba(224,179,74,.35); }
+.round-btn {
+  width: 44px; height: 44px; border-radius: 50%;
+  border: 2px solid var(--gold);
+  background: radial-gradient(circle at 35% 30%, #1d5a44, #0c2a22);
+  color: var(--gold-light);
+  font-family: var(--font-title); font-size: 24px; font-weight: 700;
+  cursor: pointer; display: grid; place-items: center;
+  box-shadow: 0 2px 6px #000, inset 0 1px 2px rgba(255,255,255,.2);
+  transition: transform .15s, box-shadow .15s;
+}
+.round-btn:hover { transform: scale(1.08); box-shadow: 0 0 12px rgba(224,179,74,.6), 0 2px 6px #000; }
+.round-btn svg { width: 26px; height: 26px; }
+
+/* ===== SIDEBAR ===== */
+#sidebar {
+  grid-area: sidebar;
+  background: linear-gradient(180deg, #0f3326 0%, #0a241b 55%, #08180f 100%);
+  border-right: 3px solid var(--gold-dark);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  box-shadow: 4px 0 14px rgba(0,0,0,.5);
+}
+
+.nav { padding: 18px 10px 10px; display: flex; flex-direction: column; gap: 2px; }
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 10px 14px;
+  border: none;
+  background: transparent;
+  color: var(--text-light);
+  font-family: var(--font-title);
+  font-size: 21px;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+  border-radius: 14px;
+  position: relative;
+  border-bottom: 1px solid rgba(224,179,74,.18);
+  transition: background .15s, transform .1s;
+}
+.nav-item svg { width: 40px; height: 40px; flex-shrink: 0; filter: drop-shadow(0 2px 2px rgba(0,0,0,.7)); }
+.nav-item:hover { background: rgba(224,179,74,.12); }
+.nav-item.active {
+  background: linear-gradient(180deg, #f2cb6a 0%, #c9962f 55%, #a87a1f 100%);
+  color: #fff7dc;
+  border: 2px solid #ffe9a8;
+  border-radius: 24px;
+  padding: 9px 14px;
+  text-shadow: 0 1px 2px rgba(60,30,0,.8);
+  box-shadow: 0 3px 8px rgba(0,0,0,.6), inset 0 1px 2px rgba(255,255,255,.5);
+  margin-bottom: 6px;
+}
+.nav-item .badge {
+  position: absolute;
+  right: 24px;
+  top: 50%;
+  transform: translateY(-80%);
+  min-width: 28px; height: 28px;
+  background: radial-gradient(circle at 35% 30%, #ff5a4d, #b3150f);
+  border: 2px solid #ffd0c8;
+  border-radius: 50%;
+  display: grid; place-items: center;
+  font-size: 16px; font-weight: 800; font-family: var(--font-title);
+  box-shadow: 0 2px 4px #000;
+}
+
+.sidebar-scene {
+  flex: 1;
+  margin: 10px 8px 8px;
+  border: 2px solid var(--gold-dark);
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: inset 0 0 12px rgba(0,0,0,.6);
+  min-height: 120px;
+}
+.sidebar-scene svg { width: 100%; height: 100%; display: block; }
+
+/* ===== PLACEHOLDER AREAS (prossime sezioni) ===== */
+#main { grid-area: main; padding: 14px; display: grid; place-items: center; color: var(--gold); font-family: var(--font-title); font-size: 22px; opacity: .6; }
+#right { grid-area: right; padding: 14px; display: grid; place-items: center; color: var(--gold); font-family: var(--font-title); font-size: 18px; opacity: .6; }
+
+/* ===== EQUILIBRI 3.5 — layout adattivo per smartphone ===== */
+@media (max-width: 900px) {
+  html, body { width:100%; height:100%; min-height:100%; overflow:hidden; }
+  #game {
+    position:fixed; inset:0; width:100vw; height:100dvh;
+    transform:none !important;
+    grid-template-columns:minmax(0,1fr);
+    grid-template-rows:auto auto minmax(0,1fr) minmax(130px,22dvh);
+    grid-template-areas:"topbar" "sidebar" "main" "right";
+    overflow:hidden;
+  }
+  #topbar { min-height:64px; max-height:112px; flex-wrap:wrap; align-items:center; padding:5px 8px; gap:3px; }
+  .brand { min-width:0; flex:1 1 100%; gap:8px; padding:2px 6px; }
+  .brand svg { width:34px; height:38px; }
+  .brand-title { font-size:18px; }
+  .brand-sub { font-size:12px; margin-top:1px; }
+  .top-cell { gap:4px; padding:3px 7px; border-left:0; }
+  .top-cell svg { width:18px; height:18px; }
+  .top-cell .label { font-size:10px; }
+  .top-cell .value { font-size:12px; }
+  .top-cell .small { font-size:9px; }
+  .top-cell.kingdom { display:none; }
+  .top-actions { margin-left:auto; padding:0 4px; border:0; gap:5px; }
+  .round-btn { width:30px; height:30px; font-size:16px; }
+  .round-btn svg { width:17px; height:17px; }
+  #sidebar { min-height:0; height:auto; border-right:0; border-bottom:2px solid var(--gold-dark); box-shadow:0 3px 8px #000; }
+  .nav { padding:5px 6px; flex-direction:row; overflow-x:auto; overflow-y:hidden; gap:5px; scrollbar-width:thin; }
+  .nav-item, .nav-item.active { flex:0 0 auto; min-height:42px; padding:6px 10px; margin:0; border-radius:10px; font-size:12px; gap:5px; white-space:nowrap; }
+  .nav-item svg { width:18px; height:18px; }
+  .nav-item .badge { right:0; top:0; transform:translate(25%,-20%); min-width:17px; height:17px; font-size:10px; }
+  .sidebar-scene { display:none; }
+  #main { padding:8px; min-height:0; overflow:auto; font-size:14px; }
+  #right { padding:6px 8px; min-height:0; overflow:auto; border-top:1px solid rgba(224,179,74,.4); }
+  .turn-bar { position:sticky; bottom:0; z-index:5; padding:6px 0; }
+  .turn-btn { min-height:44px; }
+  .modal-box { width:min(96vw,620px); max-height:90dvh; overflow:auto; }
+}
+@media (max-width: 420px) {
+  #game { grid-template-rows:auto auto minmax(0,1fr) minmax(110px,20dvh); }
+  .top-cell { padding:2px 4px; }
+  .top-cell .label { font-size:9px; }
+  .top-cell .value { font-size:11px; }
+  .nav-item, .nav-item.active { font-size:11px; padding:5px 8px; }
+}
+
+
+/* ===== PANORAMICA ===== */
+/* (layout di #main definito in sezioni.css) */
+
+/* banner */
+.pan-banner { position: relative; height: 142px; margin: 0 -14px; flex-shrink: 0; overflow: hidden; border-bottom: 3px solid var(--gold-dark); }
+.pan-banner > svg.scene { position: absolute; inset: 0; width: 100%; height: 100%; }
+.pan-ribbon { position: absolute; left: 50%; top: 6px; transform: translateX(-50%); text-align: center; width: 600px; }
+.pan-ribbon .crown { width: 62px; height: 44px; margin: 0 auto -18px; position: relative; z-index: 2; filter: drop-shadow(0 3px 3px #000); display: block; }
+.pan-ribbon .plate {
+  position: relative; padding: 12px 26px 8px;
+  background: linear-gradient(180deg, #8c1a1a, #4e0b0b);
+  border: 3px solid var(--gold); border-radius: 40px 40px 14px 14px;
+  box-shadow: 0 4px 10px rgba(0,0,0,.7), inset 0 0 0 2px #2a0505;
+}
+.pan-ribbon h1 { font-family: var(--font-title); font-size: 30px; font-weight: 800; color: var(--gold-light); letter-spacing: 1.5px; white-space: nowrap; text-shadow: 0 2px 3px #000; line-height: 1.1; }
+.pan-ribbon .sub { font-family: var(--font-title); font-size: 15px; color: #fff3d0; margin-top: 8px; text-shadow: 0 1px 3px #000, 0 0 8px #000; }
+
+/* tessere */
+.stat-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
+.stat-tile {
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  padding: 10px 8px; border-radius: 14px; border: 3px solid var(--gold-dark);
+  box-shadow: 0 3px 8px rgba(0,0,0,.6), inset 0 0 0 2px rgba(255,255,255,.18);
+  color: #fff; min-height: 84px;
+}
+.stat-tile svg { width: 50px; height: 50px; flex-shrink: 0; filter: drop-shadow(0 2px 2px rgba(0,0,0,.6)); }
+.stat-tile .t { font-family: var(--font-title); font-weight: 700; font-size: 19px; line-height: 1.1; text-shadow: 0 1px 2px #000; }
+.stat-tile .v { font-family: var(--font-title); font-weight: 800; font-size: 24px; line-height: 1.15; text-shadow: 0 1px 2px #000; white-space: nowrap; }
+.stat-tile.pil { background: linear-gradient(180deg, #2a8a46, #124a24); }
+.stat-tile.tesoro { background: linear-gradient(180deg, #3a3a30, #1a1a14); }
+.stat-tile.debito { background: linear-gradient(180deg, #a02828, #5a0f0f); }
+.stat-tile.lavoro { background: linear-gradient(180deg, #6a3aa8, #321a5e); }
+.stat-tile.inflazione { background: linear-gradient(180deg, #1f5fa8, #0e2f5e); }
+
+/* griglia pannelli */
+.pan-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.panel { border: 3px solid var(--gold-dark); border-radius: 10px; overflow: hidden; background: linear-gradient(180deg, #f3e6c4, #dcc690); box-shadow: 0 4px 10px rgba(0,0,0,.55); display: flex; flex-direction: column; }
+.panel > header {
+  display: flex; align-items: center; gap: 10px; padding: 6px 12px;
+  background: linear-gradient(180deg, #164634, #0a2a1f); border-bottom: 2px solid var(--gold-dark);
+  font-family: var(--font-title); font-weight: 700; font-size: 20px; color: var(--gold-light); text-shadow: 0 1px 2px #000;
+}
+.panel > header svg { width: 30px; height: 30px; flex-shrink: 0; }
+.panel .body { padding: 10px 14px; flex: 1; }
+
+/* evoluzione */
+.evo-row { display: grid; grid-template-columns: 30px 150px 1fr 76px; align-items: center; gap: 8px; padding: 8px 0; border-bottom: 1px solid rgba(110,80,30,.25); }
+.evo-row:last-child { border-bottom: none; }
+.evo-row .name { font-family: var(--font-title); font-weight: 700; font-size: 18px; }
+.evo-row .val { font-family: var(--font-title); font-weight: 700; font-size: 17px; text-align: right; }
+.evo-row.up .val { color: #1f8a3c; }
+.evo-row.down .val { color: #b3261e; }
+.evo-row svg { width: 26px; height: 26px; }
+.bar { height: 14px; border-radius: 8px; background: #cdbb8c; box-shadow: inset 0 1px 3px rgba(0,0,0,.5); overflow: hidden; border: 1px solid #8a6c34; }
+.bar > i { display: block; height: 100%; border-radius: 8px; }
+.bar.g > i { background: linear-gradient(180deg, #5fe07a, #1f8a3c); }
+.bar.r > i { background: linear-gradient(180deg, #f0645c, #a01c15); }
+
+/* eventi */
+.ev-item { display: flex; align-items: center; gap: 0; margin-bottom: 7px; border: 1px solid #a8884a; border-radius: 6px; overflow: hidden; background: #f7ecd0; cursor: pointer; transition: transform .1s, box-shadow .15s; }
+.ev-item:last-child { margin-bottom: 0; }
+.ev-item:hover { transform: translateX(3px); box-shadow: 0 2px 8px rgba(0,0,0,.4); }
+.ev-item .thumb { width: 130px; height: 46px; flex-shrink: 0; }
+.ev-item .thumb svg { width: 100%; height: 100%; display: block; }
+.ev-item .txt { flex: 1; display: flex; align-items: center; gap: 8px; padding: 0 10px; font-family: var(--font-title); font-weight: 700; font-size: 17px; }
+.ev-item .txt svg { width: 22px; height: 22px; flex-shrink: 0; }
+.ev-item.neg .txt { color: #a01c15; }
+.ev-item.pos .txt { color: #14582a; }
+.ev-item.neu .txt { color: #6b4a10; }
+.ev-item .chev { width: 26px; color: #b3261e; font-weight: 800; font-size: 20px; }
+
+/* parlamento */
+.parl { display: flex; flex-direction: column; align-items: center; padding: 6px 10px 12px; }
+.parl > svg { width: 100%; max-width: 290px; height: auto; }
+.parl .seats { font-family: var(--font-title); font-weight: 800; font-size: 22px; color: var(--text-dark); margin-top: -34px; position: relative; }
+.parl .stable { margin-top: 8px; padding: 6px 40px; border-radius: 22px; border: 2px solid #9fe8b4; background: linear-gradient(180deg, #2f9a4c, #14582a); color: #fff; font-family: var(--font-title); font-weight: 700; font-size: 20px; text-shadow: 0 1px 2px #000; box-shadow: 0 2px 6px rgba(0,0,0,.6); display: flex; align-items: center; gap: 10px; }
+.parl .stable.warn { background: linear-gradient(180deg, #d89a2a, #8a5a0a); border-color: #ffe0a0; }
+.parl .stable.bad { background: linear-gradient(180deg, #c8392e, #7a1410); border-color: #ffb0a8; }
+
+/* priorità */
+.prio-list { position: relative; }
+.prio { display: flex; align-items: center; gap: 12px; padding: 8px 10px; font-family: var(--font-title); font-weight: 700; font-size: 19px; cursor: pointer; border-radius: 4px; user-select: none; }
+.prio:hover { background: rgba(224,179,74,.25); }
+.prio .box { width: 26px; height: 26px; border: 3px solid #4a3a1a; border-radius: 4px; background: #f7ecd0; display: grid; place-items: center; flex-shrink: 0; }
+.prio.done .box { background: #e0b34a; border-color: #8a6420; }
+.prio.done .box::after { content: '✓'; font-size: 18px; color: #3a2606; font-weight: 800; }
+.prio.done span { text-decoration: line-through; opacity: .6; }
+.prio.focus { background: linear-gradient(90deg, #f7da7a, #f3e6c4); }
+.stable svg { width: 26px; height: 26px; flex-shrink: 0; }
+.prio-quill { position: absolute; right: 4px; bottom: 0; width: 120px; height: 90px; opacity: .85; pointer-events: none; }
+
+
+/* ===== PANNELLO DESTRO ===== */
+#right.dx { display: flex; flex-direction: column; gap: 12px; padding: 12px 14px 14px 2px; place-items: unset; opacity: 1; overflow-y: auto; color: var(--text-dark); }
+
+.king-card { position: relative; border: 3px solid var(--gold); border-radius: 22px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,.7), inset 0 0 0 2px #5c3f10; height: 322px; flex-shrink: 0; background: #1a1208; }
+.king-pic { position: absolute; inset: 0; }
+.king-pic svg { width: 100%; height: 100%; display: block; }
+.king-plate {
+  position: absolute; left: 10px; right: 10px; bottom: 10px; height: 52px; display: flex; align-items: center; justify-content: center; gap: 12px;
+  background: linear-gradient(180deg, rgba(20,38,30,.92), rgba(8,20,15,.95)); border: 2px solid var(--gold); border-radius: 12px;
+  font-family: var(--font-title); font-weight: 800; font-size: 25px; color: var(--gold-light); text-shadow: 0 2px 3px #000;
+  padding-left: 62px;
+}
+.king-plate svg { position: absolute; left: 10px; bottom: 6px; width: 46px; height: 54px; filter: drop-shadow(0 2px 3px #000); }
+
+.council { flex-shrink: 0; }
+.council > header { font-size: 21px; }
+.council > header svg { width: 36px; height: 28px; }
+.council { background: linear-gradient(180deg, #0f3326, #0a241b); }
+.council-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; padding: 10px; }
+.min-card { border: 2px solid var(--gold-dark); border-radius: 8px; overflow: hidden; background: #0a1a14; cursor: pointer; transition: transform .12s, box-shadow .15s, border-color .15s; display: flex; flex-direction: column; }
+.min-card:hover { transform: translateY(-2px); border-color: var(--gold); box-shadow: 0 4px 10px rgba(0,0,0,.6); }
+.min-card.sel { border-color: #fff0b0; box-shadow: 0 0 0 2px var(--gold), 0 4px 12px rgba(224,179,74,.5); }
+.min-card .pic { height: 96px; }
+.min-card .pic svg { width: 100%; height: 100%; display: block; }
+.min-card .plate { display: flex; flex-direction: column; align-items: center; padding: 3px 2px 4px; background: linear-gradient(180deg, #164634, #0a2a1f); border-top: 2px solid var(--gold-dark); font-family: var(--font-title); line-height: 1.15; }
+.min-card .plate b { font-size: 14px; color: #fff3d0; font-weight: 700; }
+.min-card .plate span { font-size: 13px; color: var(--gold-light); }
+
+
+/* ===== SEZIONI, PULSANTI, MODALI ===== */
+#main.sec, #main.pan { display: flex; flex-direction: column; gap: 12px; padding: 0 14px 0; overflow-y: auto; place-items: unset; opacity: 1; font-size: 16px; color: var(--text-dark); font-family: var(--font-body); }
+#main::-webkit-scrollbar, #right::-webkit-scrollbar { width: 8px; }
+#main::-webkit-scrollbar-thumb, #right::-webkit-scrollbar-thumb { background: var(--gold-dark); border-radius: 4px; }
+
+.sec-head { flex-shrink: 0; margin: 0 -14px; height: 70px; display: grid; place-items: center; background: linear-gradient(180deg, #1c5a44, #0e3326); border-bottom: 3px solid var(--gold-dark); box-shadow: inset 0 -20px 30px rgba(0,0,0,.25); }
+.sec-head .plate { text-align: center; padding: 6px 54px 5px; background: linear-gradient(180deg, #8c1a1a, #4e0b0b); border: 3px solid var(--gold); border-radius: 30px; box-shadow: 0 4px 10px rgba(0,0,0,.7), inset 0 0 0 2px #2a0505; }
+.sec-head h1 { font-family: var(--font-title); font-size: 26px; font-weight: 800; color: var(--gold-light); letter-spacing: 1.5px; text-shadow: 0 2px 3px #000; line-height: 1.15; }
+.sec-head .sub { font-family: var(--font-title); font-size: 12.5px; color: #fff3d0; text-shadow: 0 1px 2px #000; }
+
+/* barra del turno */
+.turn-bar { position: sticky; bottom: 0; margin: auto -14px 0; padding: 14px 0 12px; display: flex; justify-content: center; flex-shrink: 0; background: linear-gradient(180deg, rgba(8,22,16,0) 0%, #0a1f17 45%, #0a1f17 100%); z-index: 5; }
+.turn-btn { display: flex; align-items: center; gap: 14px; padding: 8px 36px 8px 22px; cursor: pointer; font-family: var(--font-title); font-weight: 800; font-size: 31px; color: #fff3d0; text-shadow: 0 2px 3px #000;
+  background: linear-gradient(180deg, #a31f1f 0%, #6e1010 55%, #4a0909 100%); border: 3px solid var(--gold); border-radius: 40px;
+  box-shadow: 0 0 0 3px #3a0505, 0 6px 14px rgba(0,0,0,.8), inset 0 2px 3px rgba(255,255,255,.3); transition: transform .12s, box-shadow .15s; }
+.turn-btn:hover { transform: translateY(-2px) scale(1.02); box-shadow: 0 0 0 3px #3a0505, 0 0 22px rgba(224,179,74,.6), 0 6px 14px rgba(0,0,0,.8), inset 0 2px 3px rgba(255,255,255,.3); }
+.turn-btn:active { transform: translateY(1px); }
+.turn-btn svg { width: 48px; height: 34px; }
+.turn-btn .arr { font-size: 30px; margin-left: 6px; }
+.turn-btn[disabled] { filter: grayscale(.8); cursor: not-allowed; }
+
+/* pulsanti */
+.btn { font-family: var(--font-title); font-weight: 700; font-size: 15px; padding: 6px 16px; border-radius: 18px; cursor: pointer; color: #2c1d0c; text-shadow: 0 1px 0 rgba(255,255,255,.4);
+  background: linear-gradient(180deg, #f6d878, #d9a73a 60%, #b8841f); border: 2px solid #8a6420; box-shadow: 0 2px 4px rgba(0,0,0,.45), inset 0 1px 1px rgba(255,255,255,.6); transition: transform .1s, filter .15s; }
+.btn small { font-size: 12px; font-weight: 600; opacity: .8; }
+.btn:hover:not([disabled]) { transform: translateY(-1px); filter: brightness(1.08); }
+.btn.sec { background: linear-gradient(180deg, #2f9a4c, #14582a); color: #fff; border-color: #0c3a1a; text-shadow: 0 1px 2px #000; }
+.btn.ghost { background: transparent; color: #6a4a10; border-color: #a8884a; box-shadow: none; text-shadow: none; }
+.btn[disabled] { opacity: .45; cursor: not-allowed; }
+
+/* tag */
+.tags { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 2px; }
+.tag { font-family: var(--font-title); font-size: 12.5px; font-weight: 700; padding: 1px 8px; border-radius: 10px; background: #efe2bd; border: 1px solid; white-space: nowrap; }
+.tag.good { color: #14582a; border-color: #4aa863; }
+.tag.bad { color: #a01c15; border-color: #d4766e; }
+.pos { color: #1f8a3c; } .neg { color: #b3261e; }
+
+/* griglie */
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; align-items: start; }
+.grid2.wide-left { grid-template-columns: 1.35fr 1fr; }
+.grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.note { font-size: 15px; font-style: italic; color: #5a4210; margin-top: 8px; font-weight: 600; }
+.note.top { margin: 6px 4px; color: var(--gold-light); }
+.note.foot { color: var(--gold-light); margin: 0 4px; }
+.mini-row { display: grid; grid-template-columns: 96px 1fr 40px; align-items: center; gap: 8px; font-family: var(--font-title); font-weight: 700; font-size: 14px; margin: 3px 0; }
+.mini-row.big { grid-template-columns: 120px 1fr 48px; font-size: 17px; margin: 9px 0; }
+.mini-row b { text-align: right; }
+.bar { position: relative; }
+.bar.y > i { background: linear-gradient(180deg, #f5d65a, #c9962f); }
+.bar u { position: absolute; top: -1px; bottom: -1px; width: 3px; background: #2c1d0c; }
+
+/* governo */
+.coal { font-family: var(--font-title); font-size: 17px; font-weight: 600; }
+.min-big { display: flex; gap: 10px; padding: 8px; border: 3px solid var(--gold-dark); border-radius: 10px; background: linear-gradient(180deg, #f3e6c4, #dcc690); box-shadow: 0 3px 8px rgba(0,0,0,.5); }
+.min-big.sel { border-color: var(--gold-light); box-shadow: 0 0 0 2px var(--gold), 0 3px 8px rgba(0,0,0,.5); }
+.mb-pic { width: 88px; height: 118px; flex-shrink: 0; border: 2px solid var(--gold-dark); border-radius: 6px; overflow: hidden; background: #0a1a14; }
+.mb-pic svg { width: 100%; height: 100%; display: block; }
+.mb-txt { flex: 1; min-width: 0; }
+.mb-name { font-family: var(--font-title); font-weight: 800; font-size: 18px; line-height: 1.1; }
+.mb-role { font-family: var(--font-title); font-weight: 600; font-size: 14px; color: #6a4a10; margin-bottom: 3px; }
+.mb-dir { display: flex; flex-direction: column; margin-top: 4px; font-size: 14px; line-height: 1.2; }
+.mb-dir b { font-family: var(--font-title); font-size: 14.5px; }
+.mb-dir span { font-weight: 600; color: #4a3410; }
+.mb-act { display: flex; align-items: center; justify-content: space-between; margin-top: 6px; }
+.cost { font-family: var(--font-title); font-weight: 700; font-size: 14px; color: #6a4a10; }
+
+/* parlamento */
+.parl.big > svg { max-width: 460px; }
+.parl.big .seats { font-size: 28px; margin-top: -42px; }
+.party-row { display: grid; grid-template-columns: 22px 100px 100px 1fr 40px; gap: 8px; align-items: center; padding: 6px 0; border-bottom: 1px solid rgba(110,80,30,.25); font-family: var(--font-title); font-size: 17px; }
+.party-row:last-of-type { border-bottom: none; }
+.party-row > i { width: 18px; height: 18px; border-radius: 50%; border: 2px solid rgba(0,0,0,.4); }
+.party-row .ruolo { font-size: 13px; color: #6a4a10; font-weight: 600; }
+.party-row em { font-style: normal; font-weight: 800; text-align: right; }
+.vote-row { display: grid; grid-template-columns: 1fr auto auto; gap: 10px; padding: 5px 0; border-bottom: 1px solid rgba(110,80,30,.25); font-family: var(--font-title); font-size: 15px; }
+.vote-row.ok span { color: #1f8a3c; font-weight: 700; } .vote-row.ko span { color: #b3261e; font-weight: 700; }
+.vote-row em { font-style: normal; color: #6a4a10; font-size: 13px; }
+.big-num { font-family: var(--font-title); font-weight: 800; font-size: 54px; line-height: 1; color: #6e1010; }
+
+/* leggi */
+.tabs { display: flex; gap: 8px; flex-shrink: 0; }
+.tab { font-family: var(--font-title); font-weight: 700; font-size: 17px; padding: 7px 20px; border-radius: 18px 18px 0 0; cursor: pointer; color: var(--gold-light); background: linear-gradient(180deg, #164634, #0a2a1f); border: 2px solid var(--gold-dark); border-bottom: none; }
+.tab.on { background: linear-gradient(180deg, #f2cb6a, #c9962f); color: #2c1d0c; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+.chip { font-family: var(--font-title); font-weight: 700; font-size: 13.5px; padding: 3px 14px; border-radius: 14px; cursor: pointer; color: var(--gold-light); background: #0e3326; border: 2px solid var(--gold-dark); }
+.chip.on { background: var(--gold); color: #2c1d0c; }
+.law-card { display: flex; flex-direction: column; gap: 5px; padding: 10px 12px; border: 3px solid var(--gold-dark); border-radius: 10px; background: linear-gradient(180deg, #f3e6c4, #dcc690); box-shadow: 0 3px 8px rgba(0,0,0,.5); }
+.law-card h3 { font-family: var(--font-title); font-size: 18px; font-weight: 800; }
+.law-card p { font-size: 15.5px; font-weight: 600; line-height: 1.2; color: #3a2a10; }
+.lc-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.cat { font-family: var(--font-title); font-size: 12px; font-weight: 700; padding: 1px 10px; border-radius: 10px; background: #164634; color: var(--gold-light); }
+.support { display: grid; grid-template-columns: 112px 1fr 66px; gap: 8px; align-items: center; font-family: var(--font-title); font-size: 13px; font-weight: 700; margin-top: 2px; }
+.support b { text-align: right; }
+.lc-bot { display: flex; justify-content: space-between; align-items: center; margin-top: 2px; }
+.lc-bot .acts, .acts { display: flex; gap: 6px; }
+
+/* economia */
+.charts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.chart { padding: 8px 10px 6px; border: 3px solid var(--gold-dark); border-radius: 10px; background: linear-gradient(180deg, #f3e6c4, #dcc690); box-shadow: 0 3px 8px rgba(0,0,0,.5); }
+.ch-top { display: flex; justify-content: space-between; font-family: var(--font-title); font-weight: 700; font-size: 15px; }
+.ch-top b { font-size: 17px; }
+.chart svg { width: 100%; height: 62px; display: block; margin: 4px 0 2px; }
+.ch-foot { display: flex; justify-content: space-between; font-size: 12.5px; color: #6a4a10; font-weight: 600; }
+.bud-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 22px; }
+.slider .sl-top { display: flex; justify-content: space-between; font-family: var(--font-title); font-size: 15.5px; }
+.slider input { width: 100%; accent-color: #b8841f; margin: 4px 0 0; }
+.slider .hint { font-size: 13.5px; font-weight: 600; color: #5a4210; line-height: 1.15; }
+.flow { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; text-align: center; }
+.flow span { display: block; font-size: 13px; font-weight: 600; color: #5a4210; }
+.flow b { font-family: var(--font-title); font-size: 20px; }
+.saldo { margin-top: 8px; text-align: center; font-family: var(--font-title); font-weight: 800; font-size: 20px; }
+.panel .acts { margin-top: 10px; justify-content: center; }
+
+/* società */
+.umore { font-family: var(--font-title); font-weight: 800; font-size: 24px; color: #6e1010; margin-bottom: 4px; }
+.issues { margin-left: 22px; font-size: 17px; font-weight: 600; line-height: 1.35; }
+
+/* diplomazia */
+.nat-list { display: flex; flex-direction: column; gap: 10px; }
+.nat-row { display: flex; align-items: center; gap: 14px; padding: 10px 12px; border: 3px solid var(--gold-dark); border-radius: 10px; background: linear-gradient(180deg, #f3e6c4, #dcc690); box-shadow: 0 3px 8px rgba(0,0,0,.5); }
+.flag { width: 84px; flex-shrink: 0; filter: drop-shadow(0 2px 3px rgba(0,0,0,.5)); }
+.flag svg { width: 100%; display: block; }
+.nat-info { flex: 1; min-width: 0; }
+.nat-info h3 { font-family: var(--font-title); font-size: 20px; font-weight: 800; }
+.nat-info p { font-size: 15px; font-weight: 600; color: #4a3410; }
+.nat-info .mini-row { grid-template-columns: 70px 1fr 34px; max-width: 360px; }
+.nat-act { display: flex; flex-direction: column; gap: 5px; width: 230px; }
+.nat-act .btn { font-size: 13.5px; padding: 4px 10px; }
+
+/* eventi */
+.ev-card { display: flex; border: 3px solid var(--gold-dark); border-radius: 10px; overflow: hidden; background: linear-gradient(180deg, #f3e6c4, #dcc690); box-shadow: 0 3px 8px rgba(0,0,0,.5); }
+.ev-img { width: 190px; flex-shrink: 0; }
+.ev-img svg { width: 100%; height: 100%; display: block; }
+.ev-body { padding: 10px 14px; flex: 1; min-width: 0; }
+.ev-top { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+.ev-top h3 { font-family: var(--font-title); font-size: 21px; font-weight: 800; }
+.ev-card.neg h3 { color: #a01c15; } .ev-card.pos h3 { color: #14582a; }
+.due { font-family: var(--font-title); font-size: 13px; font-weight: 700; color: #6a4a10; white-space: nowrap; }
+.due.urgent { color: #b3261e; }
+.ev-body p { font-size: 16.5px; font-weight: 600; margin: 4px 0 8px; line-height: 1.25; }
+.choices { display: flex; flex-direction: column; gap: 6px; }
+.choice { display: grid; grid-template-columns: 1fr auto; text-align: left; gap: 2px 10px; padding: 6px 12px; cursor: pointer; border: 2px solid #a8884a; border-radius: 8px; background: #f7ecd0; font-family: var(--font-title); color: #2c1d0c; transition: background .12s, transform .1s; }
+.choice:hover:not([disabled]) { background: #fbe49a; transform: translateX(3px); }
+.choice[disabled] { opacity: .5; cursor: not-allowed; }
+.choice .ct { font-weight: 700; font-size: 16px; }
+.choice .cc { font-weight: 700; font-size: 14px; color: #6a4a10; }
+.choice .tags { grid-column: 1 / 3; margin-top: 0; }
+.cron { display: flex; flex-wrap: wrap; gap: 4px 12px; padding: 5px 0; border-bottom: 1px solid rgba(110,80,30,.25); font-family: var(--font-title); font-size: 15px; }
+.cron.neg b { color: #a01c15; } .cron.pos b { color: #14582a; }
+.cron span { color: #5a4210; font-weight: 600; flex: 1; }
+.cron em { font-style: normal; color: #6a4a10; font-size: 13px; margin-left: auto; }
+
+/* modale e avvisi */
+#modal { position: absolute; inset: 0; z-index: 50; background: rgba(2,10,7,.72); display: none; place-items: center; }
+#modal.on { display: grid; }
+.modal-box { width: 680px; max-height: 820px; overflow-y: auto; border: 4px solid var(--gold); border-radius: 16px; background: linear-gradient(180deg, #f3e6c4, #dcc690); box-shadow: 0 10px 40px #000; color: var(--text-dark); }
+.modal-box > header { padding: 12px 20px; background: linear-gradient(180deg, #8c1a1a, #4e0b0b); font-family: var(--font-title); font-weight: 800; font-size: 26px; color: var(--gold-light); text-shadow: 0 2px 3px #000; text-align: center; border-bottom: 3px solid var(--gold); }
+.modal-box.win > header { background: linear-gradient(180deg, #2f9a4c, #14582a); }
+.modal-box .mb { padding: 16px 22px; font-size: 18px; font-weight: 600; line-height: 1.3; }
+.modal-box .mb h4 { font-family: var(--font-title); font-size: 17px; margin: 10px 0 4px; color: #6e1010; }
+.modal-box .mb ul { margin-left: 22px; }
+.modal-box .foot { display: flex; justify-content: center; gap: 12px; padding: 4px 22px 18px; }
+.modal-box .btn { font-size: 18px; padding: 8px 26px; }
+.rep-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 8px 0; }
+.rep-grid div { text-align: center; padding: 6px; border: 2px solid #a8884a; border-radius: 8px; background: #f7ecd0; font-family: var(--font-title); }
+.rep-grid span { display: block; font-size: 13px; color: #6a4a10; }
+.rep-grid b { font-size: 19px; }
+.big-score { text-align: center; font-family: var(--font-title); font-weight: 800; font-size: 56px; color: #6e1010; line-height: 1.1; }
+#toast { position: absolute; left: 766px; bottom: 112px; transform: translate(-50%, 20px); opacity: 0; pointer-events: none; z-index: 40; padding: 8px 22px; border-radius: 20px; font-family: var(--font-title); font-weight: 700; font-size: 17px; color: #fff3d0; background: #0e3326; border: 2px solid var(--gold); box-shadow: 0 4px 12px #000; transition: opacity .2s, transform .2s; }
+#toast.on { opacity: 1; transform: translate(-50%, 0); }
+#toast.err { background: #6e1010; }
+
+/* i blocchi della colonna centrale non devono restringersi */
+#main.sec > *, #main.pan > * { flex-shrink: 0; }
+.turn-bar { margin-top: auto; }
+
+</style>
+</head>
+<body>
+<div id="game">
+  <header id="topbar"></header>
+  <aside id="sidebar"></aside>
+  <main id="main"></main>
+  <section id="right"></section>
+  <div id="toast"></div>
+  <div id="modal"></div>
+</div>
+<script>
+/* js/data.js */
+// Dati statici del gioco: partiti, leggi, eventi, nazioni, direttive
+window.DATA = (function () {
+  // assi ideologici: [spesa/redistribuzione, sociale, ambiente, ordine]
+  const PARTITI = [
+    { id: 'verdi', nome: 'Verdi', colore: '#1f9a3c', ideol: [0.3, 0.5, 0.9, -0.2] },
+    { id: 'blu', nome: 'Blu', colore: '#1f5fd0', ideol: [-0.7, -0.1, -0.3, 0.4] },
+    { id: 'rossi', nome: 'Rossi', colore: '#d0302a', ideol: [0.8, 0.8, 0.3, -0.3] },
+    { id: 'gialli', nome: 'Gialli', colore: '#f0c820', ideol: [-0.1, 0.2, -0.3, 0.8] },
+    { id: 'ind', nome: 'Indipendenti', colore: '#b8b8b8', ideol: [0, 0, 0, 0] }
+  ];
+
+  const G = (lav, imp, gio, anz) => ({ lav, imp, gio, anz });
+
+  // eff = effetti permanenti finché la legge è in vigore (spostano gli obiettivi degli indicatori)
+  const LEGGI = [
+    { id: 'energia', nome: 'Legge sull\'energia', cat: 'Ambiente', costo: 3, axes: [0.3, 0.1, 0.5, 0], desc: 'Riordina il mercato energetico e frena i rincari.', eff: { infl: -0.1, amb: 4 } },
+    { id: 'riforma-fiscale', nome: 'Riforma fiscale', cat: 'Fisco', costo: 1.2, axes: [0.3, 0.2, 0, 0], desc: 'Semplifica il sistema delle imposte e le rende più eque.', eff: { pil: 0.12, tes: 0.03, stab: 1, gr: G(2, 3, 0, 0) } },
+    { id: 'infrastrutture', nome: 'Piano infrastrutture', cat: 'Economia', costo: 4, axes: [0.4, 0, -0.2, 0.2], desc: 'Strade, ponti e ferrovie: cantieri in tutto il regno.', eff: { pil: 0.15, lav: 0.6, tes: -0.04, stab: 1, gr: G(2, 2, 0, 0) } },
+    { id: 'sanita', nome: 'Rafforzamento sanitario', cat: 'Sociale', costo: 3, axes: [0.7, 0.6, 0, 0], desc: 'Più medici, più ospedali, liste d\'attesa più corte.', eff: { san: 10, tes: -0.07, stab: 1, gr: G(2, 0, 0, 6) } },
+    { id: 'scuola', nome: 'Riforma della scuola', cat: 'Sociale', costo: 2.5, axes: [0.4, 0.5, 0, 0], desc: 'Investe su docenti, edifici e formazione tecnica.', eff: { ist: 10, pil: 0.05, tes: -0.04, gr: G(0, 0, 6, 0) } },
+    { id: 'transizione', nome: 'Transizione verde', cat: 'Ambiente', costo: 5, axes: [0.3, 0.1, 0.9, -0.1], desc: 'Rinnovabili, reti e incentivi per l\'industria pulita.', eff: { amb: 12, pil: 0.06, infl: -0.1, tes: -0.05, gr: G(0, -2, 4, 0) } },
+    { id: 'incentivi-lavoro', nome: 'Incentivi all\'assunzione', cat: 'Lavoro', costo: 1.5, axes: [0.1, 0.3, -0.1, 0], desc: 'Sgravi alle imprese che assumono giovani e disoccupati.', eff: { lav: 1.2, pil: 0.05, tes: -0.05, gr: G(4, 3, 0, 0) } },
+    { id: 'salario-minimo', nome: 'Salario minimo', cat: 'Lavoro', costo: 0.5, axes: [0.6, 0.7, 0, -0.1], desc: 'Una paga di base garantita per legge.', eff: { lav: -0.4, infl: 0.15, tes: 0.01, gr: G(7, -6, 0, 0) } },
+    { id: 'taglio-imprese', nome: 'Taglio fiscale alle imprese', cat: 'Fisco', costo: 1, axes: [-0.8, -0.3, -0.2, 0], desc: 'Meno tasse sugli utili per attrarre investimenti.', eff: { pil: 0.15, tes: -0.08, infl: 0.05, gr: G(-2, 8, 0, 0) } },
+    { id: 'patrimoni', nome: 'Imposta sui grandi patrimoni', cat: 'Fisco', costo: 0.3, axes: [0.9, 0.6, 0, -0.1], desc: 'Un contributo dalle grandi ricchezze per finanziare lo Stato.', eff: { tes: 0.1, pil: -0.08, gr: G(4, -7, 0, 0) } },
+    { id: 'pensioni', nome: 'Riforma delle pensioni', cat: 'Sociale', costo: 0.5, axes: [-0.4, -0.6, 0, 0.2], desc: 'Allunga l\'età di uscita e libera risorse per i giovani.', eff: { tes: 0.09, stab: -2, gr: G(0, 0, 4, -9) } },
+    { id: 'sicurezza', nome: 'Pacchetto sicurezza', cat: 'Sicurezza', costo: 1.5, axes: [0, -0.4, 0, 0.9], desc: 'Più pattuglie, più controlli, tribunali più rapidi.', eff: { sic: 12, stab: 2, tes: -0.03, gr: G(0, 0, -3, 3) } },
+    { id: 'giustizia', nome: 'Riforma della giustizia', cat: 'Istituzioni', costo: 1, axes: [0, 0, 0, 0.3], desc: 'Processi più veloci e meno cause arretrate.', eff: { stab: 4, pil: 0.04, gr: G(0, 2, 0, 0) } },
+    { id: 'digitale', nome: 'Agenda digitale', cat: 'Economia', costo: 2, axes: [0.1, 0.1, 0.1, 0], desc: 'Servizi pubblici online e banda larga ovunque.', eff: { pil: 0.12, lav: -0.2, tes: 0.02, gr: G(0, 4, 3, 0) } },
+    { id: 'difesa', nome: 'Potenziamento della difesa', cat: 'Sicurezza', costo: 3.5, axes: [-0.2, -0.5, -0.4, 0.9], desc: 'Nuovi mezzi e addestramento per l\'esercito del Re.', eff: { stab: 3, tes: -0.06, pil: 0.03, gr: G(-1, 0, 0, 0) } },
+    { id: 'calmieri', nome: 'Calmieri sui prezzi', cat: 'Economia', costo: 0.4, axes: [0.5, 0.3, 0, 0], desc: 'Tetti ai prezzi dei beni essenziali.', eff: { infl: -0.45, pil: -0.1, tes: -0.02, gr: G(3, -4, 0, 3) } },
+    { id: 'bonus-famiglie', nome: 'Bonus famiglie', cat: 'Sociale', costo: 2, axes: [0.5, 0.5, 0, -0.1], desc: 'Un assegno mensile per le famiglie con figli.', eff: { infl: 0.1, tes: -0.05, gr: G(4, 0, 3, 3) } },
+    { id: 'riforma-pa', nome: 'Riforma dell\'amministrazione', cat: 'Istituzioni', costo: 1.5, axes: [-0.2, -0.2, 0, 0.2], desc: 'Meno burocrazia e uffici più efficienti.', eff: { tes: 0.06, stab: 1, gr: G(-2, 3, 0, 0) } },
+    { id: 'parchi', nome: 'Parchi e tutela ambientale', cat: 'Ambiente', costo: 1.2, axes: [0.1, 0.2, 1, -0.2], desc: 'Aree protette, bonifiche e foreste del regno.', eff: { amb: 10, pil: -0.04, gr: G(0, -2, 4, 0) } }
+  ];
+
+  const ACCORDO_EFF = { pil: 0.05, tes: 0.025 };
+  const PATTO_EFF = { stab: 1.5, tes: -0.02 };
+
+  const NAZIONI = [
+    { id: 'marenna', nome: 'Marenna', desc: 'Potenza marinara e primo partner commerciale.', rel: 68, accordo: true, patto: false, col: ['#1f5fa8', '#f3e6c4'] },
+    { id: 'karvia', nome: 'Karvia', desc: 'Vicino a nord, rivale storico per i confini.', rel: 38, accordo: false, patto: false, col: ['#7a1410', '#222'] },
+    { id: 'isolde', nome: 'Isolde', desc: 'Regno neutrale, ricco di università e banche.', rel: 55, accordo: false, patto: false, col: ['#2f7a4a', '#f3e6c4'] },
+    { id: 'tessaly', nome: 'Tessaly', desc: 'Produce energia e materie prime.', rel: 60, accordo: false, patto: false, col: ['#c98a1f', '#3a2a10'] },
+    { id: 'drovia', nome: 'Drovia', desc: 'Stato instabile oltre i monti: rischi e opportunità.', rel: 45, accordo: false, patto: false, col: ['#6a3aa8', '#f3e6c4'] }
+  ];
+
+  const CONSIGLIO = [
+    { id: 'venturi', comp: 70, dir: { nome: 'Discorso alla nazione', desc: 'Il Presidente parla al paese e rassicura.', costo: 0, cd: 8, i: { stab: 2, gr: G(1, 1, 1, 1) } } },
+    { id: 'moretti', comp: 82, dir: { nome: 'Stretta sulla spesa', desc: 'Tagli rapidi: più cassa ora, meno gradimento.', costo: 0, cd: 8, i: { tes: 0.5, gr: G(-2, 0, 0, -2) } } },
+    { id: 'rinaldi', comp: 65, dir: { nome: 'Esercitazioni congiunte', desc: 'Mostra la forza dell\'esercito e rafforza l\'ordine.', costo: 0.3, cd: 6, i: { stab: 2.5, idx: { sicurezza: 3 } } } },
+    { id: 'ferri', comp: 74, dir: { nome: 'Tavolo con le parti sociali', desc: 'Sindacati e imprese si siedono allo stesso tavolo.', costo: 0.2, cd: 6, i: { lav: 0.2, gr: G(3, 2, 0, 0) } } },
+    { id: 'bianchi', comp: 68, dir: { nome: 'Cantieri rapidi', desc: 'Accelera le opere: più lavoro per qualche settimana.', costo: 0.5, cd: 8, mod: { turni: 6, nome: 'Cantieri rapidi', eff: { pil: 0.12, lav: 0.3 } } } },
+    { id: 'vitale', comp: 77, dir: { nome: 'Campagna verde', desc: 'Iniziative ambientali che piacciono ai giovani.', costo: 0.3, cd: 6, i: { idx: { ambiente: 5 }, gr: G(0, 0, 3, 0) } } }
+  ];
+
+  // eventi: i = effetti immediati, mod = effetti temporanei
+  const E = (t, i, extra) => Object.assign({ t, i: i || {} }, extra || {});
+  const EVENTI = [
+    { id: 'proteste', titolo: 'Proteste trasporti', tipo: 'neg', thumb: 'proteste', testo: 'Treni e autobus fermi in tutto il regno: i lavoratori dei trasporti chiedono salari più alti e la fine dei tagli.', peso: s => 0.15, def: 2,
+      scelte: [E('Aprire il dialogo con i sindacati', { stab: 2, gr: G(3, 0, 0, 0) }, { costo: 0.8 }), E('Imporre il servizio minimo', { stab: -2, gr: G(-5, 0, -3, 0) }), E('Ignorare le proteste', { stab: -4 }, { mod: { turni: 6, nome: 'Trasporti paralizzati', eff: { pil: -0.1 } } })] },
+    { id: 'siccita', titolo: 'Crisi dell\'acqua nelle campagne', tipo: 'neg', thumb: 'natura', testo: 'Le piogge mancano da mesi. I raccolti sono a rischio e i contadini chiedono aiuto.', peso: s => 0.2 + (s.indici.ambiente < 50 ? 0.2 : 0), def: 2,
+      scelte: [E('Finanziare nuovi bacini', { gr: G(0, 2, 0, 0), idx: { ambiente: 2 } }, { costo: 1.5 }), E('Razionare l\'acqua', { stab: -1, gr: G(-2, -2, 0, -2) }), E('Lasciar fare al mercato', { gr: G(-3, 0, 0, 0) }, { mod: { turni: 8, nome: 'Raccolti scarsi', eff: { pil: -0.08, infl: 0.2 } } })] },
+    { id: 'scandalo', titolo: 'Scandalo al ministero', tipo: 'neg', thumb: 'scandalo', testo: 'Un quotidiano rivela favori ad amici di un alto funzionario. L\'opinione pubblica pretende chiarezza.', peso: s => 0.15 + (s.stabilita < 55 ? 0.1 : 0), def: 1,
+      scelte: [E('Licenziare il funzionario e aprire un\'inchiesta', { stab: 1, gr: G(2, 0, 2, 2) }, { costo: 0.2 }), E('Difenderlo pubblicamente', { stab: -3, gr: G(-3, 0, -4, -3) })] },
+    { id: 'export', titolo: 'Boom delle esportazioni', tipo: 'pos', thumb: 'economia', testo: 'I prodotti del regno vanno a ruba all\'estero. Le fabbriche lavorano a pieno ritmo.', peso: s => 0.18 + (s.pil < 0.3 ? 0.05 : 0), def: 0,
+      scelte: [E('Reinvestire nelle imprese', { gr: G(2, 3, 0, 0) }, { mod: { turni: 8, nome: 'Boom export', eff: { pil: 0.18, lav: 0.4 } } }), E('Incassare subito le entrate', { tes: 1.5 }, { mod: { turni: 4, nome: 'Boom export', eff: { pil: 0.1 } } })] },
+    { id: 'energia-rincari', titolo: 'Rincari dell\'energia', tipo: 'neg', thumb: 'economia', testo: 'Il prezzo di gas e carbone sale in fretta. Le bollette pesano su famiglie e imprese.', peso: s => 0.18 + (s.indici.ambiente < 50 ? 0.05 : 0), def: 2,
+      scelte: [E('Sussidiare le bollette', { gr: G(3, 2, 0, 3) }, { costo: 1.2 }), E('Chiedere moderazione ai fornitori', { infl: 0.1, gr: G(0, 0, 0, 0) }), E('Lasciare che il mercato si aggiusti', { infl: 0.4, gr: G(-3, -3, 0, -3) })] },
+    { id: 'sciopero', titolo: 'Sciopero generale', tipo: 'neg', thumb: 'proteste', testo: 'Il paese si ferma: scuole, uffici e fabbriche chiusi. Le piazze chiedono un cambio di rotta.', peso: s => (s.consenso < 46 ? 0.5 : s.consenso < 52 ? 0.08 : 0), def: 2,
+      scelte: [E('Concedere un tavolo negoziale', { stab: 2, gr: G(4, -2, 0, 0) }, { costo: 1 }), E('Mostrare fermezza', { stab: -3, gr: G(-6, 2, -3, 0) }), E('Aspettare che passi', { stab: -5 }, { mod: { turni: 5, nome: 'Paese paralizzato', eff: { pil: -0.15 } } })] },
+    { id: 'banca', titolo: 'Crisi di una grande banca', tipo: 'neg', thumb: 'economia', testo: 'Una banca del regno è sull\'orlo del fallimento. I risparmiatori sono nel panico.', peso: s => (s.debito > 80 ? 0.35 : 0.05), def: 2,
+      scelte: [E('Salvarla con denaro pubblico', { stab: 2 }, { costo: 3 }), E('Lasciarla fallire', { stab: -3, gr: G(-3, -5, 0, -4) }, { mod: { turni: 8, nome: 'Credito frenato', eff: { pil: -0.15 } } })] },
+    { id: 'epidemia', titolo: 'Epidemia stagionale', tipo: 'neg', thumb: 'salute', testo: 'Un virus influenzale intenso mette a dura prova gli ospedali.', peso: s => 0.1 + (s.indici.sanita < 58 ? 0.3 : 0), def: 1,
+      scelte: [E('Potenziare i reparti e vaccinare', { idx: { sanita: 3 }, gr: G(0, 0, 0, 3) }, { costo: 1 }), E('Affidarsi ai medici di base', { gr: G(-1, 0, 0, -4) }, { mod: { turni: 5, nome: 'Epidemia', eff: { pil: -0.08, lav: -0.3 } } })] },
+    { id: 'confine', titolo: 'Tensione al confine', tipo: 'neg', thumb: 'militare', testo: 'Pattuglie di Karvia sconfinano di nuovo. L\'esercito è in allerta.', peso: s => (s.diplomazia.karvia.rel < 45 ? 0.35 : 0.04), def: 2,
+      scelte: [E('Inviare un ambasciatore', { stab: 1 }, { costo: 0.2, rel: ['karvia', 8] }), E('Schierare truppe al confine', { stab: 2, gr: G(0, 0, -1, 2) }, { costo: 0.8, rel: ['karvia', -8] }), E('Non reagire', { stab: -3 }, { rel: ['karvia', -4] })] },
+    { id: 'festa', titolo: 'Festa del Regno', tipo: 'pos', thumb: 'festa', testo: 'Il Re invita il popolo alle celebrazioni nazionali. Fuochi d\'artificio in ogni città.', peso: s => 0.15, def: 0,
+      scelte: [E('Organizzare grandi festeggiamenti', { stab: 2, gr: G(3, 2, 3, 3) }, { costo: 0.6 }), E('Celebrare con sobrietà', { gr: G(1, 0, 1, 2) })] },
+    { id: 'giacimento', titolo: 'Scoperto un giacimento', tipo: 'pos', thumb: 'economia', testo: 'I geologi trovano un ricco giacimento di minerali nel nord del regno.', peso: s => 0.04, def: 0,
+      scelte: [E('Affidarlo allo Stato', { tes: 4 }, { mod: { turni: 20, nome: 'Miniere statali', eff: { tes: 0.05 } } }), E('Metterlo all\'asta alle imprese', { tes: 2, gr: G(0, 5, 0, 0) }, { mod: { turni: 20, nome: 'Miniere private', eff: { pil: 0.08, lav: 0.2 } } })] },
+    { id: 'rivolta-fiscale', titolo: 'Rivolta fiscale', tipo: 'neg', thumb: 'proteste', testo: 'Commercianti e artigiani scendono in piazza: le tasse sono troppo alte.', peso: s => (s.budget.tasse > 38 ? 0.4 : 0), def: 1,
+      scelte: [E('Promettere un alleggerimento', { stab: 1, gr: G(2, 3, 0, 0) }), E('Tenere duro', { stab: -3, gr: G(-2, -5, 0, 0) })] },
+    { id: 'cyber', titolo: 'Attacco informatico', tipo: 'neg', thumb: 'militare', testo: 'Hacker stranieri paralizzano i sistemi di alcuni uffici pubblici.', peso: s => 0.08, def: 1,
+      scelte: [E('Investire in sicurezza digitale', { stab: 1, idx: { sicurezza: 2 } }, { costo: 1 }), E('Ripristinare e aspettare', { stab: -1 }, { mod: { turni: 4, nome: 'Servizi in tilt', eff: { pil: -0.08 } } })] },
+    { id: 'alluvione', titolo: 'Alluvione sulle coste', tipo: 'neg', thumb: 'natura', testo: 'Piogge torrenziali allagano villaggi e campi. Servono soccorsi immediati.', peso: s => 0.07 + (s.indici.ambiente < 50 ? 0.25 : 0), def: 1,
+      scelte: [E('Soccorsi e ricostruzione immediata', { stab: 1, gr: G(2, 0, 0, 2) }, { costo: 2 }), E('Aiuti minimi', { stab: -2, gr: G(-3, -2, 0, -3) }, { mod: { turni: 6, nome: 'Zone alluvionate', eff: { pil: -0.1 } } })] },
+    { id: 'fuga-cervelli', titolo: 'Fuga dei giovani talenti', tipo: 'neg', thumb: 'economia', testo: 'Laureati e tecnici partono all\'estero: qui mancano scuole e prospettive.', peso: s => (s.indici.istruzione < 50 ? 0.3 : 0.03), def: 1,
+      scelte: [E('Borse di studio e incentivi al ritorno', { gr: G(0, 0, 4, 0) }, { costo: 1 }), E('Lasciar correre', { gr: G(0, -2, -4, 0) }, { mod: { turni: 8, nome: 'Fuga dei talenti', eff: { pil: -0.06 } } })] },
+    { id: 'turisti', titolo: 'Ondata di turisti', tipo: 'pos', thumb: 'festa', testo: 'Il bel tempo e la fama dei castelli portano visitatori da ogni dove.', peso: s => 0.14, def: 0,
+      scelte: [E('Promuovere il turismo', { gr: G(2, 3, 0, 0) }, { costo: 0.4, mod: { turni: 6, nome: 'Alta stagione', eff: { pil: 0.14, lav: 0.4 } } }), E('Lasciare il flusso naturale', {}, { mod: { turni: 4, nome: 'Alta stagione', eff: { pil: 0.07 } } })] },
+    { id: 'accordo-offerta', titolo: 'Offerta di un patto di amicizia', tipo: 'neu', thumb: 'accordo', testo: 'Un\'ambasciata straniera propone un trattato di amicizia che migliorerebbe i rapporti.', peso: s => 0.09, def: 1,
+      scelte: [E('Accettare con entusiasmo', { stab: 1 }, { relMin: 6 }), E('Declinare con cortesia', {})] }
+  ];
+  // l'evento «accordo-offerta» migliora la relazione con la nazione meno cordiale tra le neutrali
+
+  const MESI = ['Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno', 'Luglio', 'Agosto', 'Settembre', 'Ottobre', 'Novembre', 'Dicembre'];
+  const GRUPPI = { lav: 'Lavoratori', imp: 'Imprese', gio: 'Giovani', anz: 'Anziani' };
+
+  return {
+    PARTITI, LEGGI, EVENTI, NAZIONI, CONSIGLIO, MESI, GRUPPI, ACCORDO_EFF, PATTO_EFF, G,
+    legge: id => LEGGI.find(l => l.id === id),
+    evento: id => EVENTI.find(e => e.id === id),
+    partito: id => PARTITI.find(p => p.id === id),
+    ministro: id => CONSIGLIO.find(m => m.id === id)
+  };
+})();
+
+
+/* js/thumbs.js */
+// Miniature SVG per gli eventi (130x46)
+window.MINIATURE = {
+  proteste: `<svg viewBox="0 0 130 46" preserveAspectRatio="xMidYMid slice"><rect width="130" height="46" fill="#4a4a5a"/><rect y="0" width="130" height="16" fill="#8a96b0"/>${[0,1,2,3,4,5,6,7,8].map(i=>`<circle cx="${8+i*14}" cy="${26+(i%3)*3}" r="6" fill="${['#d6a07a','#c58a62','#e8bd96'][i%3]}"/><path d="M${i*14} 46 Q${8+i*14} ${30+(i%3)*3} ${16+i*14} 46Z" fill="${['#8a2a2a','#2a3a6a','#3a3a3a'][i%3]}"/>`).join('')}<rect x="60" y="4" width="34" height="14" fill="#f1e3c0" stroke="#5a3a12"/><path d="M76 18 V30" stroke="#5a3a12" stroke-width="2"/></svg>`,
+  accordo: `<svg viewBox="0 0 130 46" preserveAspectRatio="xMidYMid slice"><rect width="130" height="46" fill="#6a82a0"/><rect y="30" width="130" height="16" fill="#8a9bb0"/><path d="M0 46 L30 18 L55 28 L75 28 L100 18 L130 46Z" fill="#2a3a5a"/><path d="M48 30 L65 22 L82 30 L65 40Z" fill="#f0d0b0" stroke="#7a5a3a"/><path d="M52 30 H78" stroke="#7a5a3a"/></svg>`,
+  legge: `<svg viewBox="0 0 130 46" preserveAspectRatio="xMidYMid slice"><rect width="130" height="46" fill="#8a5a2a"/><rect x="0" y="30" width="130" height="16" fill="#5a3416"/><path d="M26 34 L40 8 H96 L108 34Z" fill="#f3e6c4" stroke="#5a3a12"/><path d="M48 16 H90 M46 22 H92 M44 28 H94" stroke="#a8884a" stroke-width="2"/><path d="M96 10 L122 2 L112 18Z" fill="#fff" stroke="#8a7a5a"/><circle cx="104" cy="30" r="6" fill="#b3261e"/></svg>`,
+  natura: `<svg viewBox="0 0 130 46" preserveAspectRatio="xMidYMid slice"><defs><linearGradient id="nt1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e8b060"/><stop offset="1" stop-color="#f6e2b0"/></linearGradient></defs><rect width="130" height="46" fill="url(#nt1)"/><circle cx="100" cy="14" r="9" fill="#fff3c0"/><path d="M0 32 Q30 20 60 30 T130 28 V46 H0Z" fill="#9a8a4a"/><path d="M0 40 Q40 30 80 38 T130 36 V46 H0Z" fill="#7a6a30"/><path d="M10 40 l6-6 M30 42 l6-6 M60 41 l6-6 M90 40 l6-6" stroke="#4a3a14" stroke-width="1.5"/></svg>`,
+  economia: `<svg viewBox="0 0 130 46" preserveAspectRatio="xMidYMid slice"><rect width="130" height="46" fill="#14402e"/><g fill="#e0b34a" stroke="#6b4210"><rect x="14" y="26" width="12" height="20"/><rect x="32" y="18" width="12" height="28"/><rect x="50" y="10" width="12" height="36"/></g><path d="M10 22 L38 12 L56 16 L90 4" fill="none" stroke="#7bf092" stroke-width="3" stroke-linecap="round"/>${[0,1,2].map(i=>`<ellipse cx="${100+i*2}" cy="${38-i*5}" rx="13" ry="4.5" fill="#f0c860" stroke="#6b4210"/>`).join('')}</svg>`,
+  militare: `<svg viewBox="0 0 130 46" preserveAspectRatio="xMidYMid slice"><rect width="130" height="46" fill="#6a7284"/><rect y="32" width="130" height="14" fill="#3a4a34"/><rect x="40" y="12" width="50" height="24" fill="#8a8e98" stroke="#3a3e48"/><path d="M40 12 h8 v-5 h8 v5 h8 v-5 h8 v5 h8 v-5 h8 v5" fill="none" stroke="#3a3e48" stroke-width="2"/><rect x="60" y="22" width="10" height="14" fill="#2a2e38"/>${[8,22,104,118].map(x=>`<path d="M${x} 44 V8" stroke="#5a3a12" stroke-width="2"/><path d="M${x} 8 l-3 6 h6Z" fill="#cfd3dc"/>`).join('')}<path d="M92 14 h22 v10 h-22Z" fill="#b3261e"/></svg>`,
+  festa: `<svg viewBox="0 0 130 46" preserveAspectRatio="xMidYMid slice"><rect width="130" height="46" fill="#14183a"/>${[[30,14,'#ffd45a'],[70,10,'#ff6a5a'],[104,18,'#6ad0ff']].map(([x,y,c])=>`<g stroke="${c}" stroke-width="1.8" stroke-linecap="round"><path d="M${x} ${y-8} V${y+8} M${x-8} ${y} H${x+8} M${x-6} ${y-6} L${x+6} ${y+6} M${x+6} ${y-6} L${x-6} ${y+6}"/></g>`).join('')}<path d="M0 46 V36 H20 V30 H34 V36 H54 V28 H72 V36 H96 V32 H112 V36 H130 V46Z" fill="#0a0d20"/>${[10,40,64,90,118].map(x=>`<circle cx="${x}" cy="40" r="2" fill="#ffd45a"/>`).join('')}</svg>`,
+  scandalo: `<svg viewBox="0 0 130 46" preserveAspectRatio="xMidYMid slice"><rect width="130" height="46" fill="#2a2a32"/><path d="M0 0 L40 23 L0 46Z" fill="#fff" opacity=".25"/><g transform="rotate(-6 70 24)"><rect x="34" y="6" width="62" height="34" fill="#f3e6c4" stroke="#5a3a12"/><rect x="38" y="10" width="54" height="8" fill="#2a2a32"/><path d="M38 24 h22 M38 29 h22 M38 34 h22 M66 24 h26 M66 29 h26 M66 34 h20" stroke="#8a7a5a" stroke-width="2"/></g><path d="M104 8 l3 8 8 1 -6 5 2 8 -7 -4 -7 4 2 -8 -6 -5 8 -1Z" fill="#e0b34a"/></svg>`,
+  salute: `<svg viewBox="0 0 130 46" preserveAspectRatio="xMidYMid slice"><rect width="130" height="46" fill="#2a7a82"/><rect y="34" width="130" height="12" fill="#e6f2f2"/><g fill="#fff" stroke="#0e4a52" stroke-width="1.5"><rect x="52" y="6" width="26" height="26" rx="4"/></g><path d="M62 10 h6 v6 h6 v6 h-6 v6 h-6 v-6 h-6 v-6 h6Z" fill="#d6403a"/>${[14,100,116].map((x,i)=>`<circle cx="${x}" cy="${22+i%2*2}" r="5" fill="#e8bd96"/><path d="M${x-8} 40 Q${x} 26 ${x+8} 40Z" fill="#f4f4f4"/>`).join('')}</svg>`
+};
+
+
+/* js/state.js */
+// Stato globale del gioco Equilibri 3.5
+(function () {
+  const SAVE_KEY = 'equilibri26-salvataggio';
+
+  function iniziale() {
+    return {
+      regno: 'Regno di Valdoria',
+      anno: 2033, mese: 4, settimana: 3,
+      turno: 52, turniTotali: 208,
+      pil: 0.4, tesoro: 18.9, debito: 71.8, lavoro: 92.6, inflazione: 2.1,
+      consenso: 54, stabilita: 68,
+      budget: { tasse: 33, sociale: 50, infra: 50, sicurezza: 50 },
+      indici: { sanita: 62, istruzione: 58, ambiente: 55, sicurezza: 60 },
+      gruppi: { lav: 55, imp: 52, gio: 50, anz: 57 },
+      parlamento: {
+        totale: 200,
+        partiti: [
+          { id: 'verdi', nome: 'Verdi', seggi: 62, colore: '#1f9a3c', governo: true },
+          { id: 'blu', nome: 'Blu', seggi: 60, colore: '#1f5fd0', governo: true },
+          { id: 'rossi', nome: 'Rossi', seggi: 48, colore: '#d0302a', governo: false },
+          { id: 'gialli', nome: 'Gialli', seggi: 22, colore: '#f0c820', governo: false },
+          { id: 'ind', nome: 'Indipendenti', seggi: 8, colore: '#b8b8b8', governo: false }
+        ]
+      },
+      politica: { fiducia: { verdi: 68, blu: 68 }, richieste: [], opposizione: { pressione: 0, iniziative: 0, ultimaIniziativa: 0, ultimaProposta: null }, crisi: null, mozione: null, ultimaMozione: 0, storico: [], storicoMozioni: [], crisiGoverno: null },
+      incarichi: { venturi:'venturi', moretti:'moretti', rinaldi:'rinaldi', ferri:'ferri', bianchi:'bianchi', vitale:'vitale' },
+      programma: { accordi: [], ultimaTrattativa: 0 },
+      sondaggi: { governo: 54, partiti: {verdi:31,blu:30,rossi:24,gialli:11,ind:4}, ultimaRilevazione:52, storico:[] },
+      leadership: { verdi: {fiducia:70,tensione:20}, blu: {fiducia:68,tensione:22} },
+      campagna: { ultima:0, bonus:{verdi:0,blu:0,rossi:0,gialli:0,ind:0}, storico:[] },
+      ministri: { fiducia: {venturi:72,moretti:66,rinaldi:70,ferri:74,bianchi:68,vitale:76}, scandalo:null, dimissioni:[], storicoScandali:[] },
+      leggi: { inVigore: ['energia'], inDiscussione: [], bloccate: {}, storicoVoti: [] },
+      eventi: [
+        { uid: 1, id: 'proteste', nato: 51, scade: 57 },
+        { uid: 2, id: 'siccita', nato: 51, scade: 57 }
+      ],
+      uidNext: 3,
+      ultimoEvento: {},
+      mods: [],
+      dir: {},
+      diplomazia: {},
+      registro: [
+        { turno: 51, titolo: 'Proteste trasporti', tipo: 'neg', thumb: 'proteste' },
+        { turno: 50, titolo: 'Accordo commerciale', tipo: 'pos', thumb: 'accordo' },
+        { turno: 49, titolo: 'Legge energia approvata', tipo: 'neu', thumb: 'legge' }
+      ],
+      priorita: [
+        { id: 'fiscale', fattoDa: null },
+        { id: 'infra', fattoDa: null },
+        { id: 'proteste', fattoDa: null }
+      ],
+      ultimo: { dPil: 0.4, dDis: -0.3, dCons: 2 },
+      storia: [],
+      fine: null,
+      negStreak: 0,
+      rng: 20330521
+    };
+  }
+
+  const State = {
+    listeners: [],
+    sezione: 'panoramica',
+    ui: { leggiTab: 'catalogo', leggiCat: 'Tutte', modal: null },
+    subscribe(fn) { this.listeners.push(fn); },
+    emit() { this.listeners.forEach(fn => fn(this)); },
+    set(patch) { Object.assign(this, patch); this.emit(); },
+
+    nuova(silenzioso) {
+      const n = iniziale();
+      n.diplomazia = {};
+      DATA.NAZIONI.forEach(x => { n.diplomazia[x.id] = { rel: x.rel, accordo: x.accordo, patto: x.patto, ultima: -99 }; });
+      for (let i = 0; i < 24; i++) {
+        n.storia.push({ t: 28 + i, pil: 0.3 + 0.1 * Math.sin(i / 3), infl: 2.1, lav: 92.2 + i * 0.016, tes: 17 + i * 0.08, deb: 72.5 - i * 0.03, cons: 52 + i * 0.08 });
+      }
+      Object.assign(this, n);
+      this.sezione = 'panoramica';
+      this.ui = { leggiTab: 'catalogo', leggiCat: 'Tutte', modal: null };
+      if (!silenzioso) this.emit();
+    },
+
+    chiavi() { return Object.keys(iniziale()); },
+
+    salva() {
+      try {
+        const o = {};
+        this.chiavi().forEach(k => { o[k] = this[k]; });
+        localStorage.setItem(SAVE_KEY, JSON.stringify(o));
+      } catch (e) { /* storage non disponibile */ }
+    },
+
+    carica() {
+      try {
+        const raw = localStorage.getItem(SAVE_KEY);
+        if (!raw) return false;
+        const o = JSON.parse(raw);
+        if (!o || o.turno == null) return false;
+        Object.assign(this, o);
+        this.politica=this.politica||{fiducia:{verdi:68,blu:68},richieste:[],opposizione:{pressione:0,iniziative:0,ultimaIniziativa:0},crisi:null,storico:[]};
+        this.politica.opposizione=Object.assign({pressione:0,iniziative:0,ultimaIniziativa:0,ultimaProposta:null},this.politica.opposizione||{});
+        if(this.politica.mozione===undefined)this.politica.mozione=null;
+        if(this.politica.ultimaMozione===undefined)this.politica.ultimaMozione=0;
+        if(!Array.isArray(this.politica.storicoMozioni))this.politica.storicoMozioni=[];
+        if(this.politica.crisiGoverno===undefined)this.politica.crisiGoverno=null;
+        this.incarichi=Object.assign({venturi:'venturi',moretti:'moretti',rinaldi:'rinaldi',ferri:'ferri',bianchi:'bianchi',vitale:'vitale'},this.incarichi||{});
+        this.programma=this.programma||{accordi:[],ultimaTrattativa:0};
+        this.programma.accordi=Array.isArray(this.programma.accordi)?this.programma.accordi:[];
+        this.programma.ultimaTrattativa=Number(this.programma.ultimaTrattativa||0);
+        this.sondaggi=this.sondaggi||{governo:54,partiti:{verdi:31,blu:30,rossi:24,gialli:11,ind:4},ultimaRilevazione:this.turno||52,storico:[]};
+        this.sondaggi.partiti=Object.assign({verdi:31,blu:30,rossi:24,gialli:11,ind:4},this.sondaggi.partiti||{});
+        this.sondaggi.storico=Array.isArray(this.sondaggi.storico)?this.sondaggi.storico:[];
+        this.leadership=this.leadership||{verdi:{fiducia:70,tensione:20},blu:{fiducia:68,tensione:22}};
+        ['verdi','blu'].forEach(id=>this.leadership[id]=Object.assign({fiducia:68,tensione:20},this.leadership[id]||{}));
+        this.campagna=this.campagna||{ultima:0,bonus:{},storico:[]};
+        this.campagna.bonus=Object.assign({verdi:0,blu:0,rossi:0,gialli:0,ind:0},this.campagna.bonus||{});
+        this.campagna.storico=Array.isArray(this.campagna.storico)?this.campagna.storico:[];
+        this.ministri=this.ministri||{fiducia:{venturi:72,moretti:66,rinaldi:70,ferri:74,bianchi:68,vitale:76},scandalo:null,dimissioni:[]};
+        this.ministri.fiducia=Object.assign({venturi:72,moretti:66,rinaldi:70,ferri:74,bianchi:68,vitale:76},this.ministri.fiducia||{});
+        if(!Array.isArray(this.ministri.dimissioni))this.ministri.dimissioni=[];
+        if(!Array.isArray(this.ministri.storicoScandali))this.ministri.storicoScandali=[];
+        this.leggi=this.leggi||{inVigore:[],inDiscussione:[],bloccate:{},storicoVoti:[]};
+        this.leggi.inDiscussione=(this.leggi.inDiscussione||[]).map(d=>Object.assign({fase:'commissione',avanzamento:0,emendamento:null,camera:null,senato:null,bonus:0},d));
+        return true;
+      } catch (e) { return false; }
+    },
+
+    cancellaSalvataggio() { try { localStorage.removeItem(SAVE_KEY); } catch (e) { /* ok */ } }
+  };
+
+  window.State = State;
+})();
+
+
+/* js/icons.js */
+// Icone SVG in stile fantasy (oro / verde)
+window.Icons = {
+  crest: `<svg viewBox="0 0 70 80" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="gg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffe9a0"/><stop offset=".5" stop-color="#d9a73a"/><stop offset="1" stop-color="#8a6420"/></linearGradient>
+      <linearGradient id="rr" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e03a2a"/><stop offset="1" stop-color="#7a0f0a"/></linearGradient>
+    </defs>
+    <path d="M22 14 L26 4 L31 11 L35 2 L39 11 L44 4 L48 14 Z" fill="url(#gg)" stroke="#5c3f10" stroke-width="1.2"/>
+    <circle cx="26" cy="5" r="2" fill="#d33"/><circle cx="35" cy="3" r="2" fill="#3a6fd3"/><circle cx="44" cy="5" r="2" fill="#d33"/>
+    <rect x="22" y="13" width="26" height="5" rx="1" fill="url(#gg)" stroke="#5c3f10" stroke-width="1"/>
+    <path d="M10 20 H60 V46 C60 62 47 72 35 77 C23 72 10 62 10 46 Z" fill="url(#gg)" stroke="#5c3f10" stroke-width="2"/>
+    <path d="M15 25 H55 V46 C55 59 45 67 35 71 C25 67 15 59 15 46 Z" fill="url(#rr)" stroke="#3a0a05" stroke-width="1.5"/>
+    <path d="M35 33 C30 33 27 37 28 41 C25 40 23 43 25 46 C26 49 29 49 30 49 L28 58 L35 54 L42 58 L40 49 C41 49 44 49 45 46 C47 43 45 40 42 41 C43 37 40 33 35 33 Z" fill="#f6c548" stroke="#6b4210" stroke-width="1"/>
+    <circle cx="32" cy="41" r="1.2" fill="#3a0a05"/><circle cx="38" cy="41" r="1.2" fill="#3a0a05"/>
+  </svg>`,
+
+  flag: `<svg viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg" style="width:56px;height:38px">
+    <path d="M2 4 Q15 0 30 4 T58 4 V36 Q44 40 30 36 T2 36 Z" fill="#fff" stroke="#6b5420" stroke-width="1.5"/>
+    <path d="M2 4 Q8 2 20 3 V37 Q8 38 2 36 Z" fill="#1f8a3c"/>
+    <path d="M40 3 Q50 4 58 4 V36 Q48 38 40 37 Z" fill="#c8312a"/>
+    <circle cx="30" cy="20" r="6" fill="#d9a73a" stroke="#6b4210"/>
+  </svg>`,
+
+  calendar: `<svg viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
+    <rect x="3" y="7" width="34" height="30" rx="3" fill="#f1e3c0" stroke="#8a6420" stroke-width="2"/>
+    <rect x="3" y="7" width="34" height="8" rx="3" fill="#b3261e"/>
+    <rect x="10" y="3" width="3" height="8" rx="1" fill="#8a6420"/><rect x="27" y="3" width="3" height="8" rx="1" fill="#8a6420"/>
+    ${[0,1,2,3,4].map(c=>[0,1,2].map(r=>`<rect x="${7+c*6}" y="${19+r*6}" width="4" height="4" fill="#5a3a12"/>`).join('')).join('')}
+  </svg>`,
+
+  chartUp: `<svg viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
+    <rect x="5" y="24" width="6" height="12" fill="#3fbf5a"/><rect x="14" y="18" width="6" height="18" fill="#3fbf5a"/><rect x="23" y="12" width="6" height="24" fill="#3fbf5a"/>
+    <path d="M4 22 L16 12 L24 16 L36 4" fill="none" stroke="#7bf092" stroke-width="3" stroke-linecap="round"/>
+    <path d="M28 4 H36 V12" fill="none" stroke="#7bf092" stroke-width="3" stroke-linecap="round"/>
+  </svg>`,
+
+  coins: `<svg viewBox="0 0 44 40" xmlns="http://www.w3.org/2000/svg">
+    <defs><linearGradient id="cg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffe9a0"/><stop offset="1" stop-color="#b8841f"/></linearGradient></defs>
+    ${[30,24,18].map(y=>`<ellipse cx="14" cy="${y}" rx="12" ry="5" fill="url(#cg)" stroke="#6b4210"/>`).join('')}
+    ${[34,28,22,16].map(y=>`<ellipse cx="30" cy="${y}" rx="12" ry="5" fill="url(#cg)" stroke="#6b4210"/>`).join('')}
+  </svg>`,
+
+  people: `<svg viewBox="0 0 48 40" xmlns="http://www.w3.org/2000/svg">
+    <g fill="#f3dfb0" stroke="#8a6420" stroke-width="1">
+      <circle cx="24" cy="12" r="6"/><path d="M12 36 C12 24 36 24 36 36 Z"/>
+      <circle cx="9" cy="16" r="5"/><path d="M0 36 C0 26 18 26 18 36 Z"/>
+      <circle cx="39" cy="16" r="5"/><path d="M30 36 C30 26 48 26 48 36 Z"/>
+    </g>
+  </svg>`,
+
+  scales: `<svg viewBox="0 0 44 40" xmlns="http://www.w3.org/2000/svg">
+    <g stroke="#e0b34a" stroke-width="2.5" fill="none" stroke-linecap="round">
+      <path d="M22 5 V34"/><path d="M12 34 H32"/><path d="M6 11 H38"/>
+      <path d="M6 11 L1 24 H11 Z"/><path d="M38 11 L33 24 H43 Z"/>
+    </g>
+    <circle cx="22" cy="5" r="3" fill="#e0b34a"/>
+  </svg>`,
+
+  question: `<svg viewBox="0 0 30 30" xmlns="http://www.w3.org/2000/svg"><text x="15" y="23" text-anchor="middle" font-family="Cinzel, Georgia, serif" font-size="24" font-weight="800" fill="#f5d98a">?</text></svg>`,
+
+  gear: `<svg viewBox="0 0 30 30" xmlns="http://www.w3.org/2000/svg">
+    <path fill="#f5d98a" stroke="#8a6420" d="M13 2h4l1 4 3 1.5 3.5-2 3 3-2 3.5L27 14v4l-4 1-1.5 3 2 3.5-3 3-3.5-2L13 28H9l-1-4-3-1.5-3.5 2-3-3 2-3.5L1 18v-4l4-1 1.5-3-2-3.5 3-3 3.5 2z" transform="translate(1,0) scale(.95)"/>
+    <circle cx="15" cy="15" r="5" fill="#0c2a22" stroke="#8a6420"/>
+  </svg>`,
+
+  // --- icone del menu ---
+  home: `<svg viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
+    <path d="M20 5 L2 21 H7 V35 H16 V25 H24 V35 H33 V21 H38 Z" fill="#fff3d0" stroke="#7a5412" stroke-width="2" stroke-linejoin="round"/>
+    <rect x="17" y="25" width="6" height="10" fill="#7a5412"/>
+  </svg>`,
+
+  crown: `<svg viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
+    <defs><linearGradient id="mg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffe9a0"/><stop offset="1" stop-color="#b8841f"/></linearGradient></defs>
+    <path d="M4 30 L2 11 L12 20 L20 6 L28 20 L38 11 L36 30 Z" fill="url(#mg)" stroke="#6b4210" stroke-width="1.8" stroke-linejoin="round"/>
+    <rect x="4" y="30" width="32" height="6" rx="1.5" fill="url(#mg)" stroke="#6b4210" stroke-width="1.8"/>
+    <circle cx="20" cy="6" r="2.5" fill="#d33"/><circle cx="2" cy="11" r="2" fill="#d33"/><circle cx="38" cy="11" r="2" fill="#d33"/>
+  </svg>`,
+
+  parliament: `<svg viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
+    <g fill="#f0c860" stroke="#7a5412" stroke-width="1.5" stroke-linejoin="round">
+      <path d="M20 3 L3 12 H37 Z"/>
+      <rect x="4" y="12" width="32" height="3"/>
+      <rect x="7" y="16" width="4" height="15"/><rect x="14" y="16" width="4" height="15"/><rect x="22" y="16" width="4" height="15"/><rect x="29" y="16" width="4" height="15"/>
+      <rect x="3" y="31" width="34" height="3"/><rect x="1" y="34" width="38" height="3"/>
+    </g>
+  </svg>`,
+
+  laws: `<svg viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
+    <path d="M8 4 H30 Q34 4 34 8 V30 Q34 35 29 35 H12 Q7 35 7 30 Z" fill="#f1e3c0" stroke="#8a6420" stroke-width="2"/>
+    <path d="M4 8 Q4 3 9 3 Q13 3 13 8" fill="none" stroke="#c9962f" stroke-width="3"/>
+    <g stroke="#a8782a" stroke-width="2" stroke-linecap="round"><path d="M14 13 H29"/><path d="M14 19 H29"/><path d="M14 25 H25"/></g>
+    <rect x="5" y="32" width="27" height="5" rx="2.5" fill="#d9a73a" stroke="#6b4210"/>
+  </svg>`,
+
+  economy: `<svg viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
+    <rect x="3" y="24" width="7" height="13" fill="#f0c860" stroke="#7a5412" stroke-width="1.5"/>
+    <rect x="13" y="17" width="7" height="20" fill="#f0c860" stroke="#7a5412" stroke-width="1.5"/>
+    <rect x="23" y="11" width="7" height="26" fill="#f0c860" stroke="#7a5412" stroke-width="1.5"/>
+    <path d="M3 18 L14 9 L22 13 L35 3" fill="none" stroke="#f6e7b0" stroke-width="3" stroke-linecap="round"/>
+    <path d="M27 3 H35 V11" fill="none" stroke="#f6e7b0" stroke-width="3" stroke-linecap="round"/>
+  </svg>`,
+
+  society: `<svg viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
+    <g fill="#f0c860" stroke="#7a5412" stroke-width="1.3">
+      <circle cx="20" cy="11" r="6"/><path d="M8 34 C8 20 32 20 32 34 Z"/>
+      <circle cx="7" cy="15" r="4.5"/><path d="M-1 34 C-1 24 14 24 14 34 Z"/>
+      <circle cx="33" cy="15" r="4.5"/><path d="M26 34 C26 24 41 24 41 34 Z"/>
+    </g>
+  </svg>`,
+
+  diplomacy: `<svg viewBox="0 0 44 40" xmlns="http://www.w3.org/2000/svg">
+    <path d="M2 14 L14 10 L24 14 L32 12 L42 16 L36 30 L24 34 L12 30 Z" fill="#f6dfa0" stroke="#7a5412" stroke-width="2" stroke-linejoin="round"/>
+    <path d="M14 10 L20 22 L30 20 L24 14" fill="#e0b34a" stroke="#7a5412" stroke-width="1.5"/>
+    <path d="M12 30 L18 24 M24 34 L28 26" stroke="#7a5412" stroke-width="2"/>
+  </svg>`,
+
+  alert: `<svg viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
+    <defs><linearGradient id="ag" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffd966"/><stop offset="1" stop-color="#e0a020"/></linearGradient></defs>
+    <path d="M20 3 L38 35 H2 Z" fill="url(#ag)" stroke="#7a5412" stroke-width="2" stroke-linejoin="round"/>
+    <rect x="18" y="14" width="4" height="11" rx="1.5" fill="#2c1d0c"/><circle cx="20" cy="30" r="2.3" fill="#2c1d0c"/>
+  </svg>`
+};
+
+
+/* js/engine.js */
+// Motore di gioco: simulazione dei turni, voti, eventi, azioni del giocatore
+(function () {
+  const D = DATA;
+  const clamp = (x, a, b) => Math.max(a, Math.min(b, x));
+  const it = (n, d = 1) => (n < 0 ? '−' : '') + Math.abs(n).toFixed(d).replace('.', ',');
+  const sg = (n, d = 1) => (n < 0 ? '−' : '+') + Math.abs(n).toFixed(d).replace('.', ',');
+  const ELEZIONI = [100, 148, 196];
+
+  function rnd(s) {
+    s.rng = (s.rng + 0x6D2B79F5) | 0;
+    let t = s.rng;
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  }
+
+  const zero = () => ({ pil: 0, lav: 0, infl: 0, stab: 0, tes: 0, san: 0, ist: 0, amb: 0, sic: 0, gr: { lav: 0, imp: 0, gio: 0, anz: 0 } });
+  function addEff(t, e, k = 1) {
+    for (const key in e) {
+      if (key === 'gr') for (const g in e.gr) t.gr[g] += e.gr[g] * k;
+      else t[key] = (t[key] || 0) + e[key] * k;
+    }
+  }
+
+  function modsTotali(s) {
+    const m = zero();
+    s.leggi.inVigore.forEach(id => addEff(m, D.legge(id).eff));
+    s.mods.forEach(x => { if (x.fine > s.turno) addEff(m, x.eff); });
+    Object.keys(s.diplomazia).forEach(id => {
+      const n = s.diplomazia[id];
+      if (n.accordo) addEff(m, D.ACCORDO_EFF);
+      if (n.patto) addEff(m, D.PATTO_EFF);
+    });
+    return m;
+  }
+
+  const govSeggi = s => s.parlamento.partiti.filter(p => p.governo).reduce((a, p) => a + p.seggi, 0);
+
+  function voto(s, L, neg, bonus = 0) {
+    const det = s.parlamento.partiti.map(p => {
+      const pd = D.partito(p.id);
+      const dot = pd.ideol.reduce((a, v, i) => a + v * L.axes[i], 0);
+      const maggioranza = govSeggi(s) >= 101;
+      const premioGoverno = p.governo ? (maggioranza ? 0.10 : -0.08) + 0.002 * (s.stabilita - 68) : 0;
+      const share = clamp(0.5 + 0.4 * dot + premioGoverno + (neg ? 0.12 : 0) + bonus, 0.03, 0.97);
+      return { id: p.id, nome: p.nome, colore: p.colore, tot: p.seggi, si: Math.round(p.seggi * share) };
+    });
+    const si = det.reduce((a, d) => a + d.si, 0);
+    return { si, no: s.parlamento.totale - si, det, ok: si >= 101 };
+  }
+
+  function flussoPrevisto(s, m) {
+    m = m || modsTotali(s);
+    const b = s.budget;
+    const entrate = 0.018 * b.tasse * (1 + 0.15 * (s.pil - 0.4));
+    const crescita = 1 + 0.0035 * Math.max(0, s.turno - 52); // i costi dello Stato crescono col tempo
+    const spese = (0.0042 * b.sociale + 0.003 * b.infra + 0.003 * b.sicurezza + 0.02) * crescita + 0.0006 * s.debito;
+    return { entrate, spese, extra: m.tes, saldo: entrate - spese + m.tes };
+  }
+
+  // movimento di cassa: se il tesoro scende sotto zero cresce il debito
+  function muovi(s, delta) {
+    const old = s.tesoro;
+    s.tesoro += delta;
+    s.debito += 0.3 * (Math.min(0, old) - Math.min(0, s.tesoro));
+  }
+
+  function applica(s, e, k = 1) {
+    if (!e) return;
+    if (e.pil) s.pil += e.pil * k;
+    if (e.lav) s.lavoro = clamp(s.lavoro + e.lav * k, 70, 99);
+    if (e.infl) s.inflazione = clamp(s.inflazione + e.infl * k, -2, 25);
+    if (e.stab) s.stabilita = clamp(s.stabilita + e.stab * k, 0, 100);
+    if (e.tes) muovi(s, e.tes * k);
+    if (e.gr) for (const g in e.gr) s.gruppi[g] = clamp(s.gruppi[g] + e.gr[g] * k, 0, 100);
+    if (e.idx) for (const i in e.idx) s.indici[i] = clamp(s.indici[i] + e.idx[i] * k, 0, 100);
+  }
+
+  const NOMI = { pil: 'PIL', lav: 'Occupazione', infl: 'Inflazione', stab: 'Stabilità', tes: 'Tesoro', san: 'Sanità', ist: 'Istruzione', amb: 'Ambiente', sic: 'Sicurezza' };
+  function tags(e, opz) {
+    opz = opz || {};
+    const out = [];
+    if (!e) return out;
+    ['pil', 'lav', 'infl', 'stab', 'tes', 'san', 'ist', 'amb', 'sic'].forEach(k => {
+      if (!e[k]) return;
+      const good = k === 'infl' ? e[k] < 0 : e[k] > 0;
+      let nome = NOMI[k];
+      if (k === 'tes') nome = opz.una ? 'Tesoro' : 'Tesoro/turno';
+      const dec = Math.abs(e[k]) >= 5 ? 0 : (Math.abs(e[k]) >= 1 ? 1 : 2);
+      out.push({ t: `${nome} ${sg(e[k], dec)}`, good });
+    });
+    if (e.idx) for (const i in e.idx) out.push({ t: `${i[0].toUpperCase() + i.slice(1)} ${sg(e.idx[i], 0)}`, good: e.idx[i] > 0 });
+    if (e.gr) for (const g in e.gr) if (e.gr[g]) out.push({ t: `${D.GRUPPI[g]} ${sg(e.gr[g], 0)}`, good: e.gr[g] > 0 });
+    return out;
+  }
+
+  function log(s, titolo, tipo, thumb, extra) {
+    s.registro.unshift(Object.assign({ turno: s.turno, titolo, tipo, thumb }, extra || {}));
+    if (s.registro.length > 40) s.registro.length = 40;
+  }
+
+  // ---- priorità del turno ----
+  const inV = (s, id) => s.leggi.inVigore.includes(id);
+  const evAtt = (s, id) => s.eventi.some(e => e.id === id);
+  const CAND = [
+    { id: 'fiscale', titolo: 'Riforma fiscale', sez: 'leggi', urg: 1, attiva: s => !inV(s, 'riforma-fiscale'), fatto: s => inV(s, 'riforma-fiscale') },
+    { id: 'infra', titolo: 'Piano infrastrutture', sez: 'leggi', urg: 1, attiva: s => !inV(s, 'infrastrutture'), fatto: s => inV(s, 'infrastrutture') },
+    { id: 'proteste', titolo: 'Gestione proteste', sez: 'eventi', urg: 3, attiva: s => evAtt(s, 'proteste') || evAtt(s, 'sciopero'), fatto: s => !evAtt(s, 'proteste') && !evAtt(s, 'sciopero') },
+    { id: 'infl', titolo: 'Contenere l\'inflazione', sez: 'economia', urg: 2, attiva: s => s.inflazione > 3, fatto: s => s.inflazione <= 2.6 },
+    { id: 'tesoro', titolo: 'Risanare il tesoro', sez: 'economia', urg: 2, attiva: s => s.tesoro < 2, fatto: s => s.tesoro >= 4 },
+    { id: 'consenso', titolo: 'Recuperare consenso', sez: 'societa', urg: 2, attiva: s => s.consenso < 46, fatto: s => s.consenso >= 52 },
+    { id: 'lavoro', titolo: 'Sostenere l\'occupazione', sez: 'leggi', urg: 2, attiva: s => s.lavoro < 91, fatto: s => s.lavoro >= 92 },
+    { id: 'stab', titolo: 'Rafforzare la stabilità', sez: 'governo', urg: 2, attiva: s => s.stabilita < 50, fatto: s => s.stabilita >= 58 },
+    { id: 'debito', titolo: 'Ridurre il debito', sez: 'economia', urg: 1, attiva: s => s.debito > 90, fatto: s => s.debito <= 80 },
+    { id: 'eventi', titolo: 'Rispondere agli eventi', sez: 'eventi', urg: 1, attiva: s => s.eventi.length >= 2, fatto: s => s.eventi.length === 0 },
+    { id: 'sanita', titolo: 'Migliorare la sanità', sez: 'leggi', urg: 1, attiva: s => s.indici.sanita < 55, fatto: s => s.indici.sanita >= 62 },
+    { id: 'ambiente', titolo: 'Proteggere l\'ambiente', sez: 'leggi', urg: 1, attiva: s => s.indici.ambiente < 48, fatto: s => s.indici.ambiente >= 56 }
+  ];
+  const cand = id => CAND.find(c => c.id === id);
+
+  function prioritaView(s) {
+    const lista = s.priorita.map(p => {
+      const c = cand(p.id);
+      return { id: p.id, titolo: c.titolo, sez: c.sez, fatto: c.fatto(s), urg: c.urg };
+    });
+    let focus = -1, best = 0;
+    lista.forEach((p, i) => { if (!p.fatto && p.urg > best) { best = p.urg; focus = i; } });
+    lista.forEach((p, i) => { p.focus = i === focus; });
+    return lista;
+  }
+
+  function aggiornaPriorita(s) {
+    s.priorita.forEach(p => {
+      const c = cand(p.id);
+      if (c.fatto(s)) { if (p.fattoDa == null) p.fattoDa = s.turno; } else p.fattoDa = null;
+    });
+    s.priorita = s.priorita.filter(p => !(p.fattoDa != null && p.fattoDa < s.turno));
+    CAND.forEach(c => {
+      if (s.priorita.length < 3 && !s.priorita.some(p => p.id === c.id) && c.attiva(s) && !c.fatto(s)) s.priorita.push({ id: c.id, fattoDa: null });
+    });
+  }
+
+  // ---- azioni del giocatore ----
+  const err = m => ({ ok: false, msg: m });
+  const ok = m => ({ ok: true, msg: m });
+
+  function proponi(id) {
+    const s = State, L = D.legge(id);
+    if (s.fine) return err('La partita è finita.');
+    if (s.leggi.inVigore.includes(id)) return err('Questa legge è già in vigore.');
+    if (s.leggi.inDiscussione.some(d => d.id === id)) return err('Già in discussione.');
+    if (s.leggi.inDiscussione.length >= 3) return err('Al massimo tre leggi in discussione.');
+    if ((s.leggi.bloccate[id] || 0) > s.turno) return err('Respinta da poco: riprova tra ' + (s.leggi.bloccate[id] - s.turno) + ' turni.');
+    if (s.tesoro < L.costo) return err('Tesoro insufficiente.');
+    s.leggi.inDiscussione.push({ id, neg: false, fase: 'commissione', avanzamento: 0, emendamento: null, camera: null, senato: null, bonus: 0 });
+    return ok('«' + L.nome + '» è stata depositata e assegnata alla commissione competente.');
+  }
+  function ritira(id) {
+    const s = State;
+    s.leggi.inDiscussione = s.leggi.inDiscussione.filter(d => d.id !== id);
+    return ok('Proposta ritirata.');
+  }
+  function negozia(id) {
+    const s = State, d = s.leggi.inDiscussione.find(x => x.id === id);
+    if (!d || d.neg) return err('Già negoziata.');
+    if (s.tesoro < 0.3) return err('Tesoro insufficiente.');
+    muovi(s, -0.3);
+    d.neg = true;
+    return ok('Compromesso trovato: più voti favorevoli.');
+  }
+  function decidiEmendamento(id, scelta) {
+    const s=State, d=s.leggi.inDiscussione.find(x=>x.id===id);
+    if(!d||!d.emendamento||d.emendamento.stato!=='Proposto')return err('Nessun emendamento da decidere.');
+    if(scelta==='accogli'){d.emendamento.stato='Accolto';d.bonus=0.035;log(s,'Accolto emendamento dell’opposizione alla legge '+D.legge(id).nome,'neu','legge');return ok('Emendamento accolto: la proposta ottiene un piccolo vantaggio negoziale.');}
+    d.emendamento.stato='Respinto';d.bonus=-0.015;log(s,'Respinto emendamento dell’opposizione alla legge '+D.legge(id).nome,'neg','legge');return ok('Emendamento respinto: aumentano le tensioni sul provvedimento.');
+  }
+  function votaCamera(id) {
+    const s=State,d=s.leggi.inDiscussione.find(x=>x.id===id);
+    if(!d||d.fase!=='camera')return err('La legge non è pronta per il voto della Camera.');
+    const L=D.legge(id),v=voto(s,L,d.neg,Number(d.bonus||0));
+    d.camera={si:v.si,no:v.no,ok:v.ok,turno:s.turno};
+    s.leggi.storicoVoti.unshift({turno:s.turno,nome:L.nome,fase:'Camera',camera:true,si:v.si,no:v.no,ok:v.ok});
+    if(v.ok){d.fase='senato';log(s,L.nome+' approvata alla Camera ('+v.si+'–'+v.no+')','pos','legge');return ok('Camera: approvata. Il testo passa al Senato.');}
+    d.fase='respinta';s.leggi.bloccate[id]=s.turno+8;s.stabilita=clamp(s.stabilita-1,0,100);log(s,L.nome+' respinta alla Camera','neg','legge');return ok('Camera: il disegno di legge è respinto.');
+  }
+  function votaSenato(id) {
+    const s=State,d=s.leggi.inDiscussione.find(x=>x.id===id);
+    if(!d||d.fase!=='senato')return err('La legge non è pronta per il voto del Senato.');
+    const L=D.legge(id),v=voto(s,L,d.neg,Number(d.bonus||0));
+    const si=Math.round(v.si/2),no=100-si,okV=si>=51;
+    d.senato={si,no,ok:okV,turno:s.turno};
+    s.leggi.storicoVoti.unshift({turno:s.turno,nome:L.nome,fase:'Senato',senato:true,si,no,ok:okV});
+    if(okV){d.fase='promulgazione';log(s,L.nome+' approvata dal Senato ('+si+'–'+no+')','pos','legge');return ok('Senato: approvata. La legge attende la promulgazione del Re.');}
+    d.fase='respinta';s.leggi.bloccate[id]=s.turno+8;s.stabilita=clamp(s.stabilita-1,0,100);log(s,L.nome+' respinta dal Senato','neg','legge');return ok('Senato: il disegno di legge è respinto.');
+  }
+  function promulga(id) {
+    const s=State,d=s.leggi.inDiscussione.find(x=>x.id===id);
+    if(!d||d.fase!=='promulgazione')return err('La legge non è pronta per la promulgazione.');
+    const L=D.legge(id);if(s.tesoro<L.costo)return err('Tesoro insufficiente per rendere operativa la legge.');
+    muovi(s,-L.costo);s.leggi.inVigore.push(id);s.leggi.inDiscussione=s.leggi.inDiscussione.filter(x=>x.id!==id);
+    s.stabilita=clamp(s.stabilita+1,0,100);s.consenso=clamp(s.consenso+0.5,0,100);
+    s.leggi.storicoVoti.unshift({turno:s.turno,nome:L.nome,fase:'Promulgazione regia',promulgata:true,ok:true,si:d.senato.si,no:d.senato.no});
+    log(s,L.nome+' promulgata ed entrata in vigore','pos','legge');return ok('Legge promulgata: gli effetti entrano in vigore dal prossimo turno.');
+  }
+  function abroga(id) {
+    const s = State;
+    if (!s.leggi.inVigore.includes(id)) return err('Non in vigore.');
+    s.leggi.inVigore = s.leggi.inVigore.filter(x => x !== id);
+    s.stabilita = clamp(s.stabilita - 2, 0, 100);
+    log(s, D.legge(id).nome + ' abrogata', 'neu', 'legge');
+    return ok('Legge abrogata.');
+  }
+  function scegli(uid, idx) {
+    const s = State, ev = s.eventi.find(e => e.uid === uid);
+    if (!ev) return err('Evento non trovato.');
+    const def = D.evento(ev.id), sc = def.scelte[idx];
+    if (sc.costo && s.tesoro < sc.costo) return err('Tesoro insufficiente.');
+    risolvi(s, ev, def, sc);
+    return ok(sc.t);
+  }
+  function risolvi(s, ev, def, sc) {
+    if (sc.costo) muovi(s, -sc.costo);
+    applica(s, sc.i);
+    if (sc.mod) s.mods.push({ fine: s.turno + sc.mod.turni, nome: sc.mod.nome, eff: sc.mod.eff });
+    if (sc.rel) s.diplomazia[sc.rel[0]].rel = clamp(s.diplomazia[sc.rel[0]].rel + sc.rel[1], 0, 100);
+    if (sc.relMin) {
+      const ids = Object.keys(s.diplomazia).sort((a, b) => s.diplomazia[a].rel - s.diplomazia[b].rel);
+      s.diplomazia[ids[0]].rel = clamp(s.diplomazia[ids[0]].rel + sc.relMin, 0, 100);
+    }
+    s.eventi = s.eventi.filter(e => e.uid !== ev.uid);
+    const r = s.registro.find(x => x.uid === ev.uid);
+    if (r) r.esito = sc.t;
+  }
+  function setBudget(k, v) {
+    State.budget[k] = clamp(Math.round(v), k === 'tasse' ? 20 : 0, k === 'tasse' ? 48 : 100);
+    return ok('');
+  }
+  function rimborsa() {
+    const s = State;
+    if (s.tesoro < 1) return err('Servono almeno 1 mld in cassa.');
+    if (s.debito <= 0) return err('Nessun debito da rimborsare.');
+    s.tesoro -= 1;
+    s.debito = Math.max(0, s.debito - 0.35);
+    return ok('Rimborsato 1 mld di debito.');
+  }
+  function direttiva(id) {
+    const s = State, m = D.ministro(id), d = m.dir;
+    const assegnato=(s.incarichi||{})[id];
+    if(!assegnato)return err('Ministero vacante: nomina prima un nuovo titolare.');
+    const persona=D.ministro(assegnato)||m;
+    if ((s.dir[id] || 0) > s.turno) return err('Disponibile tra ' + (s.dir[id] - s.turno) + ' turni.');
+    if (d.costo && s.tesoro < d.costo) return err('Tesoro insufficiente.');
+    const k = persona.comp / 75;
+    const fid=Number(s.ministri?.fiducia?.[assegnato]??70);
+    if(fid<25)return err('Il ministro è in rotta con il Governo: devi prima ricucire il rapporto o sostituirlo.');
+    if (d.costo) muovi(s, -d.costo);
+    applica(s, d.i, k);
+    if (d.mod) {
+      const eff = {};
+      for (const key in d.mod.eff) eff[key] = d.mod.eff[key] * k;
+      s.mods.push({ fine: s.turno + d.mod.turni, nome: d.mod.nome, eff });
+    }
+    s.dir[id] = s.turno + d.cd;
+    return ok(d.nome + ' eseguita.');
+  }
+  function rimpasto(incarico, personaId) {
+    const s=State, ruoli=D.CONSIGLIO, persona=D.ministro(personaId);
+    if(!ruoli.some(x=>x.id===incarico)||!persona)return err('Incarico o ministro non valido.');
+    if(!s.parlamento.partiti.some(p=>p.governo))return err('Non esiste un Governo in carica.');
+    const incarichi=s.incarichi||(s.incarichi={});
+    const precedente=incarichi[incarico]||incarico;
+    const altro=Object.keys(incarichi).find(k=>incarichi[k]===personaId&&k!==incarico);
+    if(precedente===personaId)return err('Il ministro ricopre già questo incarico.');
+    if(altro)incarichi[altro]=precedente||null;
+    incarichi[incarico]=personaId;
+    s.ministri.fiducia[personaId]=clamp(Number(s.ministri.fiducia[personaId]??65)+3,0,100);
+    s.stabilita=clamp(s.stabilita-0.7,0,100);
+    const pol=s.politica||{};
+    ['verdi','blu'].forEach(id=>{if(s.parlamento.partiti.some(x=>x.id===id&&x.governo))pol.fiducia[id]=clamp(Number(pol.fiducia?.[id]??68)-1,0,100);});
+    log(s,'Rimpasto: '+personaId+' assume il ministero al posto di '+precedente,'neu','legge');
+    return ok('Rimpasto effettuato. Gli incarichi sono stati aggiornati.');
+  }
+
+  function negoziaProgramma(partito, tema) {
+    const s=State, pol=s.politica||{}, p=s.parlamento.partiti.find(x=>x.id===partito&&x.governo);
+    if(!p)return err('Puoi negoziare il programma solo con un partito della maggioranza.');
+    const prog=s.programma||(s.programma={accordi:[],ultimaTrattativa:0});
+    if(s.turno-(prog.ultimaTrattativa||0)<4)return err('Una trattativa programmatica ogni 4 turni.');
+    const temi={
+      sociale:{nome:'Patto sociale',eff:{gr:{lav:2,anz:2}},costo:0.7},
+      crescita:{nome:'Patto per la crescita',eff:{pil:0.06,gr:{imp:2}},costo:0.5},
+      ambiente:{nome:'Patto verde',eff:{idx:{ambiente:3},gr:{gio:2}},costo:0.6}
+    };
+    const x=temi[tema];if(!x)return err('Tema non riconosciuto.');
+    if(s.tesoro<x.costo)return err('Tesoro insufficiente per finanziare il patto.');
+    muovi(s,-x.costo);applica(s,x.eff);
+    pol.fiducia[partito]=clamp(Number(pol.fiducia?.[partito]??68)+5,0,100);
+    prog.accordi.unshift({turno:s.turno,partito,nome:p.nome,tema:x.nome});
+    prog.accordi=prog.accordi.slice(0,8);prog.ultimaTrattativa=s.turno;
+    log(s,'Accordo di maggioranza: '+x.nome+' con '+p.nome,'pos','legge');
+    return ok('Patto programmatico firmato con '+p.nome+'.');
+  }
+
+  function gestisciScandalo(azione) {
+    const s=State, m=s.ministri?.scandalo;
+    if(!m)return err('Non ci sono scandali ministeriali da gestire.');
+    const fid=s.ministri.fiducia[m.ministro]??60;
+    if(azione==='difendi'){
+      s.ministri.fiducia[m.ministro]=clamp(fid+8,0,100);
+      s.consenso=clamp(s.consenso-2,0,100);s.stabilita=clamp(s.stabilita-1,0,100);
+      log(s,'Il Governo difende '+m.nome+' nonostante le accuse','neg','proteste');
+      m.stato='Difeso';
+      return ok('Hai difeso il ministro: la sua lealtà cresce, ma il Governo paga un costo d’immagine.');
+    }
+    if(azione==='indaga'){
+      s.ministri.fiducia[m.ministro]=clamp(fid-8,0,100);
+      s.consenso=clamp(s.consenso+1,0,100);s.stabilita=clamp(s.stabilita+0.5,0,100);
+      m.stato='Indagine aperta';
+      log(s,'Il Governo dispone un’indagine indipendente su '+m.nome,'neu','legge');
+      return ok('Indagine indipendente avviata. Il ministro resta in carica durante gli accertamenti.');
+    }
+    if(azione==='rimuovi'){
+      const incarico=Object.keys(s.incarichi||{}).find(k=>s.incarichi[k]===m.ministro);
+      if(incarico)s.incarichi[incarico]=null;
+      s.ministri.dimissioni.unshift({turno:s.turno,ministro:m.ministro,nome:m.nome,causa:'Scandalo'});
+      s.ministri.fiducia[m.ministro]=0;
+      s.consenso=clamp(s.consenso+2,0,100);s.stabilita=clamp(s.stabilita-1.5,0,100);
+      log(s,m.nome+' viene rimosso dopo lo scandalo','neu','legge');
+      m.stato='Rimosso';
+      return ok('Ministro rimosso. Nomina un sostituto dal menu del ministero rimasto vacante.');
+    }
+    return err('Azione non riconosciuta.');
+  }
+
+  function nominaMinistro(incarico, personaId) {
+    const s=State, ruolo=D.CONSIGLIO.find(x=>x.id===incarico), persona=D.ministro(personaId);
+    if(!ruolo||!persona)return err('Incarico o candidato non valido.');
+    const occupato=Object.keys(s.incarichi||{}).some(k=>s.incarichi[k]===personaId&&k!==incarico);
+    if(occupato)return err('Il candidato ricopre già un altro ministero.');
+    const precedente=s.incarichi[incarico];
+    if(precedente===personaId)return err('Questo ministro è già in carica.');
+    s.incarichi[incarico]=personaId;
+    if(s.ministri.dimissioni.some(x=>x.ministro===personaId))s.ministri.dimissioni=s.ministri.dimissioni.filter(x=>x.ministro!==personaId);
+    s.ministri.fiducia[personaId]=clamp(Number(s.ministri.fiducia[personaId]??65)+5,0,100);
+    s.stabilita=clamp(s.stabilita-0.4,0,100);
+    log(s,'Nomina di '+personaId+' al ministero '+incarico,'pos','legge');
+    return ok('Nomina completata.');
+  }
+
+  function diplo(id, az) {
+    const s = State, n = s.diplomazia[id], N = D.NAZIONI.find(x => x.id === id);
+    if (az === 'missione') {
+      if (s.turno - n.ultima < 3) return err('Una missione ogni 3 turni.');
+      if (s.tesoro < 0.2) return err('Tesoro insufficiente.');
+      muovi(s, -0.2); n.rel = clamp(n.rel + 6, 0, 100); n.ultima = s.turno;
+      return ok('Relazioni con ' + N.nome + ' migliorate.');
+    }
+    if (az === 'accordo') {
+      if (n.accordo) return err('Accordo già firmato.');
+      if (n.rel < 55) return err('Servono relazioni di almeno 55.');
+      if (s.tesoro < 0.5) return err('Tesoro insufficiente.');
+      muovi(s, -0.5); n.accordo = true;
+      log(s, 'Accordo commerciale con ' + N.nome, 'pos', 'accordo');
+      return ok('Accordo firmato.');
+    }
+    if (az === 'patto') {
+      if (n.patto) return err('Patto già firmato.');
+      if (n.rel < 65) return err('Servono relazioni di almeno 65.');
+      if (s.tesoro < 0.8) return err('Tesoro insufficiente.');
+      muovi(s, -0.8); n.patto = true;
+      if (id !== 'karvia') s.diplomazia.karvia.rel = clamp(s.diplomazia.karvia.rel - 5, 0, 100);
+      log(s, 'Patto di difesa con ' + N.nome, 'pos', 'militare');
+      return ok('Patto firmato.');
+    }
+    return err('Azione sconosciuta.');
+  }
+
+  // ---- elezioni ----
+  function elezioni(s) {
+    // Le intenzioni di voto entrano nel risultato: le campagne possono spostare
+    // sia la quota complessiva della coalizione sia gli equilibri tra i partner.
+    rilevaSondaggi(s,true);
+    const sondaggio=Number(s.sondaggi?.governo??s.consenso);
+    const share = clamp(0.5 + (sondaggio - 50) * 0.006 + (s.stabilita - 60) * 0.0015 + (rnd(s) - 0.5) * 0.035, 0.34, 0.66);
+    const gov = Math.round(200 * share);
+    const opp = 200 - gov;
+    const pv=Number(s.sondaggi?.partiti?.verdi??31), pb=Number(s.sondaggi?.partiti?.blu??30);
+    const rv = clamp(pv/Math.max(1,pv+pb), 0.35, 0.65);
+    const P = id => s.parlamento.partiti.find(p => p.id === id);
+    const verdi = Math.round(gov * rv);
+    P('verdi').seggi = verdi; P('blu').seggi = gov - verdi;
+    const ind = Math.max(2, Math.round(opp * 0.05));
+    const gialli = Math.round((opp - ind) * (0.25 + (s.gruppi.anz < 50 ? 0.05 : 0)));
+    P('ind').seggi = ind; P('gialli').seggi = gialli; P('rossi').seggi = opp - ind - gialli;
+    const precedenti=s.parlamento.partiti.filter(p=>p.governo).map(p=>p.id);
+    s.parlamento.partiti.forEach(p=>p.governo=false);
+    const verdiP=P('verdi'), bluP=P('blu');
+    if(verdiP)verdiP.governo=true; if(bluP)bluP.governo=true;
+    if(govSeggi(s)<101){
+      const candidati=s.parlamento.partiti.filter(p=>!p.governo).sort((a,b)=>((precedenti.includes(b.id)?1:0)-(precedenti.includes(a.id)?1:0)) || b.seggi-a.seggi);
+      for(const p of candidati){if(govSeggi(s)>=101)break;p.governo=true;}
+    }
+    return { gov:govSeggi(s), opp:200-govSeggi(s), verdi, blu:gov-verdi, seggiEletti:gov };
+  }
+
+  function punteggio(s) {
+    const econ = 0.5 * clamp((s.lavoro - 85) * 8, 0, 100) + 0.5 * clamp(100 - (s.debito - 40) * 1.2, 0, 100);
+    return Math.round(0.3 * s.consenso + 0.3 * s.stabilita + 0.4 * econ);
+  }
+  function giudizio(p) {
+    return p >= 75 ? 'Età dell\'oro' : p >= 62 ? 'Regno prospero' : p >= 48 ? 'Regno in equilibrio' : 'Regno sopravvissuto a fatica';
+  }
+
+  function controllaFine(s) {
+    if (s.consenso <= 10) return { esito: 'sconfitta', titolo: 'Rivolta popolare', testo: 'Il popolo ha perso ogni fiducia: le piazze insorgono e il governo cade.' };
+    if (s.stabilita <= 10) return { esito: 'sconfitta', titolo: 'Crollo istituzionale', testo: 'Le istituzioni non reggono più: il regno precipita nel caos.' };
+    if (s.debito >= 150) return { esito: 'sconfitta', titolo: 'Bancarotta', testo: 'Il debito è insostenibile: i creditori chiudono i rubinetti e il regno è insolvente.' };
+    if (s.negStreak >= 12) return { esito: 'sconfitta', titolo: 'Default dello Stato', testo: 'Le casse sono vuote da troppo tempo: lo Stato non può più pagare stipendi e fornitori.' };
+    if (s.turno >= s.turniTotali) {
+      const p = punteggio(s);
+      return { esito: 'vittoria', titolo: giudizio(p), testo: 'Hai guidato il regno fino al turno ' + s.turniTotali + ' mantenendolo in equilibrio.', punteggio: p };
+    }
+    return null;
+  }
+
+  function pescaEvento(s) {
+    if (s.eventi.length >= 4 || rnd(s) > 0.42) return null;
+    const c = D.EVENTI.filter(e => !evAtt(s, e.id) && s.turno - (s.ultimoEvento[e.id] ?? -99) >= 14)
+      .map(e => [e, Math.max(0, e.peso(s))]).filter(x => x[1] > 0);
+    const tot = c.reduce((a, x) => a + x[1], 0);
+    if (!tot) return null;
+    let r = rnd(s) * tot;
+    for (const [e, w] of c) { r -= w; if (r <= 0) return e; }
+    return c[c.length - 1][0];
+  }
+
+  // ---- dinamiche politiche autonome (richieste della coalizione e pressione dell'opposizione) ----
+  const TEMI_PARTNER = {
+    verdi: [{tema:'transizione energetica',testo:'accelerare gli investimenti nelle energie rinnovabili',eff:{pil:0.04,idx:{ambiente:2},gr:{gio:2}}},{tema:'tutela ambientale',testo:'rafforzare i controlli ambientali e la tutela del territorio',eff:{idx:{ambiente:3},gr:{gio:1}}}],
+    blu: [{tema:'imprese e infrastrutture',testo:'rafforzare gli incentivi alle imprese e i cantieri strategici',eff:{pil:0.08,lav:0.15,gr:{imp:2}}},{tema:'sicurezza',testo:'aumentare le risorse per sicurezza e presidio del territorio',eff:{stab:1.5,idx:{sicurezza:2},gr:{anz:1}}}]
+  };
+  function politicaAutonoma(s, rep) {
+    const pol=s.politica||(s.politica={fiducia:{verdi:68,blu:68},richieste:[],opposizione:{pressione:0,iniziative:0,ultimaIniziativa:0},crisi:null,storico:[]});
+    if(s.turno%4!==0)return;
+    // Le richieste dei partner nascono dai loro interessi e dalla fiducia nel Governo.
+    const partner=['verdi','blu'].filter(id=>s.parlamento.partiti.some(p=>p.id===id&&p.governo));
+    partner.forEach(id=>{
+      const trust=Number(pol.fiducia[id]??68), pending=pol.richieste.some(r=>r.partito===id&&r.stato==='In attesa');
+      if(!pending&&trust<82&&((s.turno+ (id==='verdi'?1:3))%8===0)){
+        const pool=TEMI_PARTNER[id], choice=pool[(Math.floor(s.turno/8)+(id==='blu'?1:0))%pool.length];
+        const req={id:'req-'+s.turno+'-'+id,partito:id,nome:id==='verdi'?'Verdi':'Blu',tema:choice.tema,testo:choice.testo,eff:choice.eff,turno:s.turno,stato:'In attesa',scadenza:s.turno+8};
+        pol.richieste.unshift(req); rep.avvisi.push(req.nome+' chiede al Governo di '+req.testo+'.');
+        log(s,req.nome+' presenta una richiesta politica: '+req.tema,'neu','legge');
+      }
+    });
+    // Pressione pubblica e iniziative autonome dell'opposizione.
+    const stress=(s.consenso<42?1:0)+(s.stabilita<48?1:0)+(s.lavoro<88?1:0)+(s.inflazione>4?1:0)+(govSeggi(s)<101?2:0);
+    if(stress>=2){
+      pol.opposizione.pressione=clamp(pol.opposizione.pressione+1,0,10);
+      s.stabilita=clamp(s.stabilita-0.45,0,100);
+      if(pol.opposizione.pressione>=3&&s.turno-pol.opposizione.ultimaIniziativa>=8){
+        pol.opposizione.iniziative++;pol.opposizione.ultimaIniziativa=s.turno;
+        const temi=['un piano straordinario per il lavoro','un’inchiesta sui costi della spesa pubblica','un pacchetto urgente per sanità e territori','una revisione della politica fiscale'];
+        const tema=temi[(pol.opposizione.iniziative-1)%temi.length];
+        pol.opposizione.ultimaProposta={turno:s.turno,tema,stato:'Presentata'};
+        rep.avvisi.push('L’opposizione presenta un’iniziativa autonoma: '+tema+'.');
+        log(s,'L’opposizione presenta '+tema,'neg','proteste');
+      }
+    } else pol.opposizione.pressione=Math.max(0,pol.opposizione.pressione-1);
+    // Una mozione di sfiducia può nascere solo durante una crisi politica concreta.
+    const crisi=(s.stabilita<38?1:0)+(s.consenso<34?1:0)+(govSeggi(s)<101?2:0)+(['verdi','blu'].some(id=>Number(pol.fiducia[id]??68)<30)?1:0)+(pol.opposizione.pressione>=7?1:0);
+    if((!pol.mozione || pol.mozione.stato!=='Da votare') && crisi>=3 && s.turno-(pol.ultimaMozione||0)>=12){
+      if(pol.mozione){pol.storicoMozioni=pol.storicoMozioni||[];pol.storicoMozioni.unshift(Object.assign({},pol.mozione));pol.storicoMozioni=pol.storicoMozioni.slice(0,5);}
+      pol.mozione={turno:s.turno,proponente:'Rossi',motivo:govSeggi(s)<101?'perdita della maggioranza parlamentare':'grave crisi di fiducia e stabilità',stato:'Da votare'};
+      pol.ultimaMozione=s.turno;
+      rep.avvisi.push('L’opposizione deposita una mozione di sfiducia: il Governo deve affrontare il voto parlamentare.');
+      log(s,'Deposita una mozione di sfiducia contro il Governo','neg','proteste');
+    }
+    // Una richiesta ignorata indebolisce gradualmente la fiducia.
+    pol.richieste.forEach(r=>{if(r.stato==='In attesa'&&s.turno>=r.scadenza){r.stato='Ignorata';pol.fiducia[r.partito]=clamp(Number(pol.fiducia[r.partito]??68)-7,0,100);log(s,r.nome+' considera ignorata la propria richiesta','neg','proteste');}});
+    pol.richieste=pol.richieste.slice(0,12);
+    ['verdi','blu'].forEach(id=>{if(Number(pol.fiducia[id]??68)<25&&partner.includes(id)){pol.crisi=id;}});
+    if(pol.crisi){const party=s.parlamento.partiti.find(p=>p.id===pol.crisi);if(party&&party.governo){party.governo=false;pol.fiducia[pol.crisi]=Math.max(0,Number(pol.fiducia[pol.crisi]??25)-5);rep.avvisi.push('Crisi di coalizione: '+party.nome+' abbandona il Governo.');log(s,party.nome+' lascia la coalizione','neg','proteste');}pol.crisi=null;}
+  }
+  function votaSfiducia() {
+    const s=State, pol=s.politica, m=pol&&pol.mozione;
+    if(!m||m.stato!=='Da votare')return err('Non ci sono mozioni di sfiducia da votare.');
+    const opposizione=s.parlamento.partiti.filter(p=>!p.governo).reduce((a,p)=>a+p.seggi,0);
+    const dissidenti=s.parlamento.partiti.filter(p=>p.governo).reduce((a,p)=>{
+      const fiducia=Number(pol.fiducia?.[p.id]??68);
+      return a+Math.round(p.seggi*clamp((48-fiducia)/100,0,0.32));
+    },0);
+    const pressione=Math.round((Number(pol.opposizione?.pressione||0)-4)*1.2);
+    const si=clamp(opposizione+dissidenti+pressione,0,s.parlamento.totale);
+    const no=s.parlamento.totale-si, passa=si>=101;
+    m.stato=passa?'Approvata':'Respinta';m.si=si;m.no=no;m.esitoTurno=s.turno;
+    s.leggi.storicoVoti.unshift({turno:s.turno,nome:'Mozione di sfiducia',fase:'Mozione parlamentare',si,no,ok:passa});
+    if(passa){
+      s.politica.crisiGoverno={turno:s.turno,si,no,stato:'consultazioni',partnerPrecedenti:s.parlamento.partiti.filter(p=>p.governo).map(p=>p.id)};
+      s.parlamento.partiti.forEach(p=>{p.governo=false;});
+      s.stabilita=clamp(s.stabilita-5,0,100);
+      log(s,'Il Parlamento approva la mozione di sfiducia ('+si+'–'+no+'): si aprono le consultazioni','neg','proteste');
+      return ok('Mozione approvata: il Governo è caduto. Ora devi trovare una nuova maggioranza o convocare elezioni.');
+    }
+    pol.opposizione.pressione=clamp(pol.opposizione.pressione-2,0,10);
+    s.stabilita=clamp(s.stabilita+2,0,100);
+    log(s,'Il Governo supera la mozione di sfiducia ('+si+'–'+no+')','pos','legge');
+    return ok('Mozione respinta: il Governo resta in carica e rafforza temporaneamente la propria posizione.');
+  }
+
+  function formaGoverno(scelta) {
+    const s=State, pol=s.politica||{};
+    if(!pol.crisiGoverno)return err('Non ci sono consultazioni in corso.');
+    const P=id=>s.parlamento.partiti.find(p=>p.id===id);
+    const parties=s.parlamento.partiti;
+    if(scelta==='compromesso'){
+      const ordine=['verdi','blu','gialli','ind','rossi'];
+      let scelti=[];
+      // Si parte dai partner con maggiore fiducia e si aggiungono gruppi fino alla maggioranza.
+      const candidati=ordine.map(id=>P(id)).filter(Boolean).sort((a,b)=>{
+        const precedenti=pol.crisiGoverno.partnerPrecedenti||[];
+        const score=p=>(pol.fiducia?.[p.id]??(precedenti.includes(p.id)?55:35))+(precedenti.includes(p.id)?18:0);
+        return score(b)-score(a);
+      });
+      let seggi=0;
+      for(const p of candidati){if(seggi>=101)break;scelti.push(p);seggi+=p.seggi;}
+      if(seggi<101)return err('Nessuna maggioranza praticabile: valuta un Governo di unità nazionale o elezioni.');
+      parties.forEach(p=>p.governo=scelti.includes(p));
+      s.stabilita=clamp(s.stabilita+3,0,100);
+      s.consenso=clamp(s.consenso+1,0,100);
+      log(s,'Nasce un Governo di compromesso con '+scelti.map(p=>p.nome).join(', '),'pos','legge');
+    }else if(scelta==='unita'){
+      parties.forEach(p=>p.governo=true);
+      s.stabilita=clamp(s.stabilita+6,0,100);
+      s.consenso=clamp(s.consenso-2,0,100);
+      log(s,'Nasce un Governo di unità nazionale con tutti i gruppi parlamentari','neu','legge');
+    }else if(scelta==='elezioni'){
+      const esito=elezioni(s);
+      s.stabilita=clamp(s.stabilita-2,0,100);
+      s.consenso=clamp(s.consenso+1,0,100);
+      log(s,'Elezioni anticipate: nuova maggioranza di '+govSeggi(s)+' seggi','neu','festa');
+    }else return err('Scelta non riconosciuta.');
+    pol.crisiGoverno=null;
+    pol.mozione=null;
+    pol.opposizione.pressione=0;
+    ['verdi','blu'].forEach(id=>{pol.fiducia[id]=clamp(Number(pol.fiducia?.[id]??55)+8,0,100);});
+    return ok('Nuovo Governo insediato: '+govSeggi(s)+' seggi di maggioranza. La legislatura continua.');
+  }
+
+  function decisionePolitica(id, scelta) {
+    const s=State, pol=s.politica, r=pol&&pol.richieste.find(x=>x.id===id&&x.stato==='In attesa');
+    if(!r)return err('Questa richiesta non è più disponibile.');
+    if(scelta==='accogli'){
+      applica(s,r.eff||{});pol.fiducia[r.partito]=clamp(Number(pol.fiducia[r.partito]??68)+7,0,100);r.stato='Accolta';
+      log(s,'Il Governo accoglie la richiesta dei '+r.nome,'pos','legge');
+      return ok('Richiesta accolta: la fiducia del partner aumenta.');
+    }
+    if(scelta==='negozia'){
+      pol.fiducia[r.partito]=clamp(Number(pol.fiducia[r.partito]??68)+3,0,100);s.stabilita=clamp(s.stabilita+0.5,0,100);r.stato='Compromesso';
+      log(s,'Il Governo trova un compromesso con '+r.nome,'neu','legge');
+      return ok('Compromesso raggiunto: il partner mantiene il sostegno.');
+    }
+    pol.fiducia[r.partito]=clamp(Number(pol.fiducia[r.partito]??68)-5,0,100);r.stato='Respinta';
+    log(s,'Il Governo respinge la richiesta dei '+r.nome,'neg','proteste');
+    return ok('Richiesta respinta: la fiducia del partner diminuisce.');
+  }
+
+
+  function rilevaSondaggi(s, forza=false) {
+    const sg=s.sondaggi||(s.sondaggi={governo:54,partiti:{},ultimaRilevazione:0,storico:[]});
+    if(!forza && s.turno-(sg.ultimaRilevazione||0)<4)return;
+    const ids=s.parlamento.partiti.map(p=>p.id);
+    const pesi={verdi:0.34,blu:0.33,rossi:0.19,gialli:0.09,ind:0.05};
+    const base=ids.map(id=>{
+      const p=s.parlamento.partiti.find(x=>x.id===id);
+      const quota=100*p.seggi/s.parlamento.totale;
+      const fid=Number(s.politica?.fiducia?.[id]??60);
+      const leader=Number(s.leadership?.[id]?.fiducia??60);
+      const bonus=Number(s.campagna?.bonus?.[id]??0);
+      const governo=p.governo? (s.consenso-50)*0.16+(s.stabilita-60)*0.05 : (50-s.consenso)*0.04;
+      return {id,val:Math.max(1,quota+(fid-60)*0.07+(leader-60)*0.035+bonus+governo)};
+    });
+    const somma=base.reduce((a,x)=>a+x.val,0);
+    const valori={};base.forEach(x=>valori[x.id]=Math.round(x.val/somma*1000)/10);
+    // Corregge l'arrotondamento per ottenere esattamente il 100%.
+    const diff=Math.round((100-Object.values(valori).reduce((a,x)=>a+x,0))*10)/10;
+    valori[base.slice().sort((a,b)=>b.val-a.val)[0].id]+=diff;
+    const gov=clamp(s.consenso+(s.stabilita-60)*0.12+(govSeggi(s)-101)*0.035,5,95);
+    sg.governo=Math.round(gov*10)/10;sg.partiti=valori;sg.ultimaRilevazione=s.turno;
+    sg.storico.unshift({turno:s.turno,governo:sg.governo,partiti:Object.assign({},valori)});
+    sg.storico=sg.storico.slice(0,12);
+    Object.keys(s.leadership||{}).forEach(id=>{
+      const l=s.leadership[id], fid=Number(s.politica?.fiducia?.[id]??60);
+      l.tensione=clamp(l.tensione+(fid<45?3:fid>70?-2:0)+(valori[id]<20?2:0),0,100);
+      if(l.tensione>65)l.fiducia=clamp(l.fiducia-2,0,100);
+      else if(l.tensione<30)l.fiducia=clamp(l.fiducia+1,0,100);
+    });
+    s.campagna.bonus=Object.fromEntries(ids.map(id=>[id,Math.max(0,Number(s.campagna.bonus?.[id]||0)*0.72)]));
+  }
+
+  function campagnaElettorale(partito, strategia) {
+    const s=State, prossima=ELEZIONI.find(t=>t>s.turno);
+    if(!prossima || prossima-s.turno>12)return err('La campagna elettorale si apre negli ultimi 12 turni prima del voto.');
+    if(s.turno-(s.campagna?.ultima||0)<3)return err('Puoi lanciare una nuova iniziativa ogni 3 turni.');
+    const p=s.parlamento.partiti.find(x=>x.id===partito);
+    if(!p)return err('Partito non riconosciuto.');
+    const opzioni={
+      territorio:{nome:'Incontri sul territorio',costo:0.45,bonus:1.4,cons:0.4,fid:1},
+      media:{nome:'Campagna sui media',costo:0.75,bonus:2.0,cons:0.7,fid:0},
+      programma:{nome:'Presentazione del programma',costo:0.6,bonus:1.7,cons:0.3,fid:2}
+    };
+    const x=opzioni[strategia];if(!x)return err('Strategia elettorale non riconosciuta.');
+    if(s.tesoro<x.costo)return err('Risorse insufficienti per la campagna.');
+    muovi(s,-x.costo);
+    s.campagna.bonus[partito]=clamp(Number(s.campagna.bonus[partito]||0)+x.bonus,0,6);
+    s.consenso=clamp(s.consenso+x.cons,0,100);
+    if(s.politica){s.politica.fiducia=s.politica.fiducia||{};if(s.politica.fiducia[partito]!=null)s.politica.fiducia[partito]=clamp(s.politica.fiducia[partito]+x.fid,0,100);}
+    s.campagna.ultima=s.turno;
+    s.campagna.storico.unshift({turno:s.turno,partito:p.nome,nome:x.nome,costo:x.costo});
+    s.campagna.storico=s.campagna.storico.slice(0,8);
+    log(s,x.nome+' · '+p.nome,'pos','festa');
+    rilevaSondaggi(s,true);
+    return ok(x.nome+' avviata per '+p.nome+'.');
+  }
+
+  function gestisciLeadership(partito, azione) {
+    const s=State, l=s.leadership?.[partito], p=s.parlamento.partiti.find(x=>x.id===partito);
+    if(!l||!p||!p.governo)return err('Puoi intervenire solo sulla leadership di un partito della coalizione.');
+    if(azione==='sostieni'){
+      if(s.tesoro<0.25)return err('Risorse insufficienti per organizzare un congresso di sostegno.');
+      muovi(s,-0.25);l.fiducia=clamp(l.fiducia+8,0,100);l.tensione=clamp(l.tensione-12,0,100);
+      s.politica.fiducia[partito]=clamp((s.politica.fiducia[partito]??60)+2,0,100);
+      log(s,'Il Governo sostiene la leadership di '+p.nome,'pos','festa');
+      return ok('La leadership di '+p.nome+' è stata rafforzata.');
+    }
+    if(azione==='media'){
+      l.tensione=clamp(l.tensione-10,0,100);s.politica.fiducia[partito]=clamp((s.politica.fiducia[partito]??60)+4,0,100);
+      s.stabilita=clamp(s.stabilita+0.5,0,100);
+      log(s,'Mediazione interna nella coalizione con '+p.nome,'neu','legge');
+      return ok('La mediazione ha ridotto le tensioni interne.');
+    }
+    return err('Intervento politico non riconosciuto.');
+  }
+
+  // ---- il turno ----
+  function turno() {
+    const s = State;
+    if (s.fine || s.politica?.crisiGoverno) return null;
+    const prev = { pil: s.pil, lav: s.lavoro, cons: s.consenso, stab: s.stabilita, tes: s.tesoro, deb: s.debito, infl: s.inflazione };
+    const rep = { turno: s.turno + 1, voti: [], eventi: [], scaduti: [], elezioni: null, avvisi: [], delta: {} };
+
+    // 1. avanzamento autonomo dell'istruttoria legislativa.
+    s.leggi.inDiscussione.forEach(d => {
+      if(d.fase==='commissione'){
+        d.avanzamento=Number(d.avanzamento||0)+1;
+        if(d.avanzamento===1&&!d.emendamento){
+          const L=D.legge(d.id), themes={
+            energia:'Destinare una quota degli investimenti alla riduzione delle bollette per le famiglie vulnerabili.',
+            lavoro:'Introdurre una verifica semestrale sulla qualità dei contratti e sui posti di lavoro creati.',
+            ambiente:'Prevedere controlli indipendenti e una relazione annuale sugli effetti ambientali.',
+            sanita:'Vincolare una parte delle risorse alla riduzione delle liste d’attesa.',
+            istruzione:'Prevedere indicatori pubblici su dispersione scolastica e accesso ai servizi.',
+            default:'Inserire una clausola di trasparenza, monitoraggio e relazione annuale al Parlamento.'
+          };
+          d.emendamento={proponente:'Rossi',testo:themes[L.cat?.toLowerCase()]||themes[L.id]||themes.default,stato:'Proposto'};
+          rep.avvisi.push('L’opposizione presenta un emendamento a '+L.nome+'.');
+          log(s,'L’opposizione deposita un emendamento a '+L.nome,'neu','legge');
+        }
+        if(d.avanzamento>=2&&!d.emendamento?.stato?.startsWith('Proposto')){d.fase='camera';rep.avvisi.push(D.legge(d.id).nome+' è pronto per il voto della Camera.');}
+        if(d.avanzamento>=3&&d.emendamento?.stato==='Proposto'){d.fase='camera';rep.avvisi.push(D.legge(d.id).nome+' è pronto per il voto della Camera, con emendamento ancora da valutare.');}
+      }
+    });
+    s.leggi.inDiscussione=s.leggi.inDiscussione.filter(d=>d.fase!=='respinta');
+    s.leggi.storicoVoti=s.leggi.storicoVoti.slice(0,10);
+
+    // 2. eventi scaduti: scelta predefinita (la peggiore)
+    s.eventi.slice().forEach(ev => {
+      if (s.turno + 1 >= ev.scade) {
+        const def = D.evento(ev.id);
+        risolvi(s, ev, def, Object.assign({}, def.scelte[def.def], { costo: 0 }));
+        rep.scaduti.push(def.titolo);
+      }
+    });
+
+    // 3. simulazione
+    const m = modsTotali(s), b = s.budget, dt = b.tasse - 33;
+    const fl = flussoPrevisto(s, m);
+    const neg = Math.max(0, -s.tesoro);
+    const usura = 0.035 * (s.turno - 52);
+    const gov = govSeggi(s);
+    const ciclo = Math.sin(s.turno / 24) * 0.2;
+
+    const pilT = 0.4 + m.pil - 0.045 * dt + 0.012 * (b.infra - 50) + ciclo - 0.12 * Math.max(0, s.inflazione - 3.2) - 0.02 * Math.max(0, s.debito - 90) - 0.016 * neg;
+    const lavT = 92.6 + m.lav + 1.5 * (s.pil - 0.4) - 0.08 * dt;
+    const inflT = 2.1 + m.infl + 0.8 * (s.pil - 0.4) + clamp(-fl.saldo * 1.5, -0.2, 0.6) + Math.min(1, 0.05 * neg);
+    const idxT = {
+      sanita: 62 + 0.5 * (b.sociale - 50) + m.san,
+      istruzione: 58 + 0.3 * (b.sociale - 50) + m.ist,
+      ambiente: 55 + m.amb,
+      sicurezza: 60 + 0.5 * (b.sicurezza - 50) + m.sic
+    };
+    const gT = {
+      lav: 55 + m.gr.lav + 3 * (s.lavoro - 92.6) - 4 * (s.inflazione - 2.1) + 0.15 * (b.sociale - 50) - 0.4 * dt - usura,
+      imp: 52 + m.gr.imp + 6 * (s.pil - 0.4) - 0.8 * dt - 1.5 * (s.inflazione - 2.1) + 0.1 * (b.infra - 50) - usura,
+      gio: 50 + m.gr.gio + 0.25 * (s.indici.istruzione - 58) + 0.15 * (s.indici.ambiente - 55) + 2 * (s.lavoro - 92.6) - 0.2 * dt - usura,
+      anz: 57 + m.gr.anz + 0.3 * (s.indici.sanita - 62) + 0.15 * (s.indici.sicurezza - 60) - 3 * (s.inflazione - 2.1) - 0.3 * dt - usura
+    };
+    const stabT = 68 + m.stab + 0.25 * (s.consenso - 54) + (gov - 122) * 0.12 - (gov < 101 ? 8 : 0) + 0.15 * (s.indici.sicurezza - 60) - Math.min(neg, 10);
+
+    s.pil += (pilT - s.pil) * 0.25 + (rnd(s) - 0.5) * 0.08;
+    s.lavoro = clamp(s.lavoro + (lavT - s.lavoro) * 0.15, 70, 99);
+    s.inflazione = clamp(s.inflazione + (inflT - s.inflazione) * 0.2, -2, 25);
+    for (const k in idxT) s.indici[k] = clamp(s.indici[k] + (idxT[k] - s.indici[k]) * 0.08, 0, 100);
+    for (const g in gT) s.gruppi[g] = clamp(s.gruppi[g] + (gT[g] - s.gruppi[g]) * 0.12, 0, 100);
+    const cT = 0.3 * s.gruppi.lav + 0.2 * s.gruppi.imp + 0.25 * s.gruppi.gio + 0.25 * s.gruppi.anz;
+    s.consenso = clamp(s.consenso + (cT - s.consenso) * 0.3, 0, 100);
+    s.stabilita = clamp(s.stabilita + (stabT - s.stabilita) * 0.1, 0, 100);
+
+    muovi(s, fl.saldo);
+    s.debito = Math.max(0, s.debito - 0.04 * Math.max(0, s.pil));
+    s.negStreak = s.tesoro < -15 ? s.negStreak + 1 : 0;
+
+    // 4. calendario
+    s.turno += 1;
+    s.settimana += 1;
+    if (s.settimana > 4) { s.settimana = 1; s.mese += 1; }
+    if (s.mese > 11) { s.mese = 0; s.anno += 1; }
+    if (s.diplomazia) Object.keys(s.diplomazia).forEach(id => {
+      const n = s.diplomazia[id], base = D.NAZIONI.find(x => x.id === id).rel + (n.accordo ? 8 : 0);
+      n.rel += (base - n.rel) * 0.015;
+    });
+
+    // 4-bis. dinamiche politiche autonome, una volta al mese di gioco
+    politicaAutonoma(s, rep);
+    rilevaSondaggi(s);
+    // Scandali e tensioni personali nel Consiglio: episodi rari, ma con conseguenze.
+    const ms=s.ministri||(s.ministri={fiducia:{},scandalo:null,dimissioni:[]});
+    const inCarica=Object.values(s.incarichi||{}).filter(Boolean);
+    if(!ms.scandalo && s.turno%8===0 && rnd(s)<0.22 && inCarica.length){
+      const id=inCarica[Math.floor(rnd(s)*inCarica.length)];
+      const nomi={venturi:'R. Venturi',moretti:'E. Moretti',rinaldi:'G. Rinaldi',ferri:'G. Ferri',bianchi:'L. Bianchi',vitale:'S. Vitale'};
+      ms.scandalo={ministro:id,nome:nomi[id]||id,turno:s.turno,stato:'Da gestire',accusa:'irregolarità nella gestione di un appalto e rapporti opachi con un gruppo di interesse'};
+      rep.avvisi.push('Scandalo al Governo: accuse contro '+ms.scandalo.nome+'.');
+      log(s,'Scoppia uno scandalo che coinvolge '+ms.scandalo.nome,'neg','scandalo');
+    }
+    inCarica.forEach(id=>{
+      ms.fiducia[id]=Number(ms.fiducia[id]??68);
+      if(ms.fiducia[id]<18 && !ms.dimissioni.some(x=>x.ministro===id&&x.turno===s.turno)){
+        const incarico=Object.keys(s.incarichi).find(k=>s.incarichi[k]===id);
+        if(incarico)s.incarichi[incarico]=null;
+        ms.dimissioni.unshift({turno:s.turno,ministro:id,nome:id,causa:'Perdita di fiducia'});
+        s.stabilita=clamp(s.stabilita-1,0,100);
+        rep.avvisi.push('Dimissioni: '+id+' lascia il Governo.');
+        log(s,id+' si dimette dal Governo','neg','proteste');
+      }
+    });
+
+    // 5. elezioni
+    if (ELEZIONI.includes(s.turno)) {
+      rep.elezioni = elezioni(s);
+      rep.elezioni.gov=govSeggi(s);
+      rep.elezioni.verdi=s.parlamento.partiti.find(p=>p.id==='verdi').seggi;
+      rep.elezioni.blu=s.parlamento.partiti.find(p=>p.id==='blu').seggi;
+      log(s, 'Elezioni politiche: nuova maggioranza di '+rep.elezioni.gov+' seggi', 'neu', 'festa');
+    }
+
+    // 6. nuovo evento
+    const nuovo = pescaEvento(s);
+    if (nuovo) {
+      const uid = s.uidNext++;
+      s.eventi.push({ uid, id: nuovo.id, nato: s.turno, scade: s.turno + 5 });
+      s.ultimoEvento[nuovo.id] = s.turno;
+      log(s, nuovo.titolo, nuovo.tipo, nuovo.thumb, { uid });
+      rep.eventi.push(nuovo.titolo);
+    }
+
+    // 7. archivio, deltas, avvisi
+    s.storia.push({ t: s.turno, pil: s.pil, infl: s.inflazione, lav: s.lavoro, tes: s.tesoro, deb: s.debito, cons: s.consenso });
+    if (s.storia.length > 80) s.storia.shift();
+    s.ultimo = { dPil: s.pil, dDis: -(s.lavoro - prev.lav), dCons: s.consenso - prev.cons };
+    rep.delta = { pil: s.pil, lav: s.lavoro - prev.lav, cons: s.consenso - prev.cons, stab: s.stabilita - prev.stab, tes: s.tesoro - prev.tes, deb: s.debito - prev.deb, infl: s.inflazione - prev.infl };
+
+    if (s.tesoro < 0) rep.avvisi.push('Il tesoro è in rosso.');
+    if (s.consenso < 30) rep.avvisi.push('Il consenso è pericolosamente basso.');
+    if (s.stabilita < 30) rep.avvisi.push('Le istituzioni sono instabili.');
+    if (s.debito > 110) rep.avvisi.push('Il debito supera il 110% del PIL.');
+    if (govSeggi(s) < 101) rep.avvisi.push('La coalizione non ha la maggioranza in parlamento.');
+
+    aggiornaPriorita(s);
+    s.fine = s.fine || controllaFine(s);
+    rep.fine = s.fine;
+    s.salva();
+    return rep;
+  }
+
+  window.Motore = {
+    proponi, ritira, negozia, abroga, scegli, setBudget, rimborsa, direttiva, diplo, turno, decisionePolitica, votaSfiducia, formaGoverno, rimpasto, negoziaProgramma, gestisciScandalo, nominaMinistro, decidiEmendamento, votaCamera, votaSenato, promulga, campagnaElettorale, gestisciLeadership, rilevaSondaggi,
+    modsTotali, govSeggi, voto, flussoPrevisto, tags, prioritaView, aggiornaPriorita, punteggio, giudizio,
+    proiezione: (id, neg) => voto(State, D.legge(id), !!neg),
+    it, sg, clamp, ELEZIONI
+  };
+})();
+
+
+/* js/panoramica.js */
+// Sezione Panoramica del Regno
+(function () {
+  const I = {
+    up: `<svg viewBox="0 0 26 26"><path d="M13 2 L24 14 H17 V24 H9 V14 H2 Z" fill="#3fbf5a" stroke="#14582a" stroke-width="1.5" stroke-linejoin="round"/></svg>`,
+    down: `<svg viewBox="0 0 26 26"><path d="M13 24 L2 12 H9 V2 H17 V12 H24 Z" fill="#d6403a" stroke="#7a1410" stroke-width="1.5" stroke-linejoin="round"/></svg>`,
+    chart: `<svg viewBox="0 0 30 30"><rect x="3" y="17" width="5" height="10" fill="#e0b34a"/><rect x="11" y="11" width="5" height="16" fill="#e0b34a"/><rect x="19" y="6" width="5" height="21" fill="#e0b34a"/><path d="M3 12 L12 5 L18 8 L28 2" fill="none" stroke="#f5d98a" stroke-width="2.2" stroke-linecap="round"/></svg>`,
+    flag: `<svg viewBox="0 0 30 30"><path d="M5 3 V28" stroke="#8a6420" stroke-width="2.5"/><path d="M5 4 Q14 0 18 5 T28 6 V16 Q20 20 16 15 T5 16 Z" fill="#e0b34a" stroke="#8a6420" stroke-width="1.5"/></svg>`,
+    parl: `<svg viewBox="0 0 30 30"><g fill="#e0b34a" stroke="#8a6420"><path d="M15 2 L2 9 H28 Z"/><rect x="4" y="10" width="3.5" height="12"/><rect x="11" y="10" width="3.5" height="12"/><rect x="18" y="10" width="3.5" height="12"/><rect x="24" y="10" width="3" height="12"/><rect x="2" y="23" width="26" height="4"/></g></svg>`,
+    target: `<svg viewBox="0 0 30 30"><circle cx="14" cy="16" r="12" fill="#f3e6c4" stroke="#8a6420" stroke-width="2"/><circle cx="14" cy="16" r="8" fill="#c8312a"/><circle cx="14" cy="16" r="4.5" fill="#f3e6c4"/><circle cx="14" cy="16" r="2" fill="#c8312a"/><path d="M14 16 L27 3" stroke="#e0b34a" stroke-width="2.5"/><path d="M22 2 L28 2 L28 8" fill="none" stroke="#e0b34a" stroke-width="2.5"/></svg>`,
+    people: `<svg viewBox="0 0 24 24"><g fill="#a01c15"><circle cx="12" cy="7" r="4"/><path d="M4 21 C4 11 20 11 20 21 Z"/></g></svg>`,
+    check: `<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#2f9a4c" stroke="#14582a" stroke-width="2"/><path d="M6.5 12.5 L10.5 16.5 L17.5 8" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+    checkGold: `<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#e0b34a" stroke="#8a6420" stroke-width="2"/><path d="M6.5 12.5 L10.5 16.5 L17.5 8" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+    crownBig: `<svg viewBox="0 0 74 52"><defs><linearGradient id="pg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffe9a0"/><stop offset="1" stop-color="#b8841f"/></linearGradient></defs><path d="M8 40 L4 14 L22 28 L37 6 L52 28 L70 14 L66 40 Z" fill="url(#pg)" stroke="#5c3f10" stroke-width="2.5" stroke-linejoin="round"/><rect x="8" y="40" width="58" height="9" rx="2" fill="url(#pg)" stroke="#5c3f10" stroke-width="2.5"/><circle cx="37" cy="6" r="4" fill="#d33"/><circle cx="4" cy="14" r="3.5" fill="#3a6fd3"/><circle cx="70" cy="14" r="3.5" fill="#3a6fd3"/><circle cx="37" cy="44" r="2.5" fill="#d33"/></svg>`,
+    // tessere
+    tPil: `<svg viewBox="0 0 50 50"><rect x="6" y="30" width="8" height="14" fill="#7bf092" stroke="#14582a" stroke-width="1.5"/><rect x="17" y="22" width="8" height="22" fill="#7bf092" stroke="#14582a" stroke-width="1.5"/><rect x="28" y="14" width="8" height="30" fill="#7bf092" stroke="#14582a" stroke-width="1.5"/><path d="M5 26 L19 14 L28 19 L44 5" fill="none" stroke="#eaffee" stroke-width="3.5" stroke-linecap="round"/><path d="M35 5 H44 V14" fill="none" stroke="#eaffee" stroke-width="3.5" stroke-linecap="round"/></svg>`,
+    tTesoro: `<svg viewBox="0 0 50 50"><defs><linearGradient id="tg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffe9a0"/><stop offset="1" stop-color="#b8841f"/></linearGradient></defs>${[40,34,28,22].map(y=>`<ellipse cx="17" cy="${y}" rx="13" ry="5.5" fill="url(#tg)" stroke="#6b4210"/>`).join('')}${[44,38,32,26,20].map(y=>`<ellipse cx="34" cy="${y}" rx="13" ry="5.5" fill="url(#tg)" stroke="#6b4210"/>`).join('')}</svg>`,
+    tDebito: `<svg viewBox="0 0 50 50"><defs><linearGradient id="dg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff8a80"/><stop offset="1" stop-color="#b3261e"/></linearGradient></defs>${[40,34,28,22].map(y=>`<ellipse cx="17" cy="${y}" rx="13" ry="5.5" fill="url(#dg)" stroke="#5a0f0f"/>`).join('')}${[44,38,32,26,20].map(y=>`<ellipse cx="34" cy="${y}" rx="13" ry="5.5" fill="url(#dg)" stroke="#5a0f0f"/>`).join('')}</svg>`,
+    tLavoro: `<svg viewBox="0 0 50 50"><g fill="#f3e6ff" stroke="#321a5e" stroke-width="1.5"><circle cx="25" cy="14" r="7"/><path d="M11 42 C11 26 39 26 39 42 Z"/><circle cx="9" cy="20" r="5.5"/><path d="M0 42 C0 30 17 30 17 42 Z"/><circle cx="41" cy="20" r="5.5"/><path d="M33 42 C33 30 50 30 50 42 Z"/></g></svg>`,
+    tInfl: `<svg viewBox="0 0 50 50"><path d="M14 22 L22 8 M36 22 L28 8" stroke="#f3e6c4" stroke-width="3.5" stroke-linecap="round"/><path d="M4 22 H46 L40 44 H10 Z" fill="#e6f0ff" stroke="#0e2f5e" stroke-width="2" stroke-linejoin="round"/><path d="M16 28 V38 M25 28 V38 M34 28 V38" stroke="#1f5fa8" stroke-width="3" stroke-linecap="round"/></svg>`
+  };
+
+  const SCENE = `<svg class="scene" viewBox="0 0 1012 150" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+    <defs><linearGradient id="bsk" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6fa8d6"/><stop offset=".7" stop-color="#cfe5ee"/><stop offset="1" stop-color="#f6e9c4"/></linearGradient></defs>
+    <rect width="1012" height="150" fill="url(#bsk)"/>
+    <ellipse cx="260" cy="30" rx="90" ry="14" fill="#fff" opacity=".7"/><ellipse cx="760" cy="22" rx="110" ry="12" fill="#fff" opacity=".6"/>
+    <path d="M520 150 L610 52 L670 92 L760 30 L860 96 L930 56 L1012 100 V150 Z" fill="#7a95a8"/>
+    <path d="M520 150 L610 52 L640 74 L590 150Z M760 30 L790 62 L740 60Z M930 56 L950 76 L915 72Z" fill="#fff" opacity=".7"/>
+    <path d="M0 150 V95 Q150 70 300 100 T560 110 T820 108 T1012 118 V150 Z" fill="#4d8a52"/>
+    <path d="M0 150 V118 Q200 100 400 124 T800 126 T1012 134 V150 Z" fill="#2f6b35"/>
+    <path d="M60 130 Q150 70 290 92 L330 130 Z" fill="#5a8a42"/>
+    <g stroke="#7a6a48" fill="#eee3c8">
+      <rect x="150" y="56" width="110" height="44"/><rect x="138" y="30" width="26" height="70"/><rect x="246" y="38" width="26" height="62"/><rect x="190" y="38" width="40" height="30"/>
+    </g>
+    <g fill="#a8452c"><path d="M134 30 L151 4 L168 30Z"/><path d="M242 38 L259 14 L276 38Z"/><path d="M186 38 L210 14 L234 38Z"/></g>
+    <g fill="#5a3a1a"><rect x="205" y="78" width="10" height="22"/><rect x="146" y="50" width="6" height="10"/><rect x="254" y="54" width="6" height="10"/></g>
+    <g>${[0,1,2,3,4,5,6,7].map(i=>`<rect x="${320+i*42}" y="${112+(i%3)*4}" width="30" height="20" fill="#f1dfae" stroke="#8a6a3a"/><path d="M${316+i*42} ${112+(i%3)*4} L${335+i*42} ${98+(i%3)*4} L${354+i*42} ${112+(i%3)*4}Z" fill="${i%2?'#b3492d':'#c8683a'}" stroke="#7a3a20"/>`).join('')}</g>
+    ${[20,60,690,1000,960].map((x,i)=>`<circle cx="${x}" cy="${128+(i%2)*6}" r="16" fill="#2f6b35"/><circle cx="${x+7}" cy="${121+(i%2)*6}" r="11" fill="#3f8a45"/>`).join('')}
+  </svg>`;
+
+  const THUMBS = {
+    proteste: `<svg viewBox="0 0 130 46" preserveAspectRatio="xMidYMid slice"><rect width="130" height="46" fill="#4a4a5a"/><rect y="0" width="130" height="16" fill="#8a96b0"/>${[0,1,2,3,4,5,6,7,8].map(i=>`<circle cx="${8+i*14}" cy="${26+(i%3)*3}" r="6" fill="${['#d6a07a','#c58a62','#e8bd96'][i%3]}"/><path d="M${i*14} 46 Q${8+i*14} ${30+(i%3)*3} ${16+i*14} 46Z" fill="${['#8a2a2a','#2a3a6a','#3a3a3a'][i%3]}"/>`).join('')}<rect x="60" y="4" width="34" height="14" fill="#f1e3c0" stroke="#5a3a12"/><path d="M76 18 V30" stroke="#5a3a12" stroke-width="2"/></svg>`,
+    accordo: `<svg viewBox="0 0 130 46" preserveAspectRatio="xMidYMid slice"><rect width="130" height="46" fill="#6a82a0"/><rect y="30" width="130" height="16" fill="#8a9bb0"/><path d="M0 46 L30 18 L55 28 L75 28 L100 18 L130 46Z" fill="#2a3a5a"/><path d="M48 30 L65 22 L82 30 L65 40Z" fill="#f0d0b0" stroke="#7a5a3a"/><path d="M52 30 H78" stroke="#7a5a3a"/></svg>`,
+    legge: `<svg viewBox="0 0 130 46" preserveAspectRatio="xMidYMid slice"><rect width="130" height="46" fill="#8a5a2a"/><rect x="0" y="30" width="130" height="16" fill="#5a3416"/><path d="M26 34 L40 8 H96 L108 34Z" fill="#f3e6c4" stroke="#5a3a12"/><path d="M48 16 H90 M46 22 H92 M44 28 H94" stroke="#a8884a" stroke-width="2"/><path d="M96 10 L122 2 L112 18Z" fill="#fff" stroke="#8a7a5a"/><circle cx="104" cy="30" r="6" fill="#b3261e"/></svg>`
+  };
+
+  const ICON_BY_TYPE = { neg: I.people, pos: I.check, neu: I.checkGold };
+
+  function hemicycle(parti, totale) {
+    const rows = 6, r0 = 70, rStep = 17, cx = 170, cy = 165;
+    const radii = Array.from({ length: rows }, (_, i) => r0 + i * rStep);
+    const sumR = radii.reduce((a, b) => a + b, 0);
+    let counts = radii.map(r => Math.round(totale * r / sumR));
+    let diff = totale - counts.reduce((a, b) => a + b, 0);
+    for (let i = rows - 1; diff !== 0; i = (i - 1 + rows) % rows) { counts[i] += Math.sign(diff); diff -= Math.sign(diff); }
+    const seats = [];
+    radii.forEach((r, ri) => {
+      for (let k = 0; k < counts[ri]; k++) {
+        const a = Math.PI - (Math.PI * (k + 0.5)) / counts[ri];
+        seats.push({ a, x: cx + r * Math.cos(a), y: cy - r * Math.sin(a) });
+      }
+    });
+    seats.sort((p, q) => q.a - p.a);
+    let idx = 0;
+    const dots = [];
+    parti.forEach(p => { for (let k = 0; k < p.seggi; k++) { const s = seats[idx++]; if (s) dots.push(`<circle cx="${s.x.toFixed(1)}" cy="${s.y.toFixed(1)}" r="5.6" fill="${p.colore}" stroke="rgba(0,0,0,.35)" stroke-width=".8"/>`); } });
+    return `<svg viewBox="0 0 340 175" xmlns="http://www.w3.org/2000/svg">${dots.join('')}</svg>`;
+  }
+
+  window.renderPanoramica = function (s) {
+    const P = s.parlamento;
+    const governo = P.partiti.filter(p => p.governo).reduce((a, p) => a + p.seggi, 0);
+    const soglia = Math.floor(P.totale / 2) + 1;
+    const stato = governo >= soglia + 10 ? ['Governo stabile', ''] : governo >= soglia ? ['Maggioranza risicata', 'warn'] : ['Governo in minoranza', 'bad'];
+    const sg = (n, d = 1) => (n >= 0 ? '+' : '−') + Math.abs(n).toFixed(d).replace('.', ',');
+    const cons = n => Math.round(n);
+
+    const tiles = [
+      ['pil', I.tPil, 'PIL', `${sg(s.pil)}% ${s.pil >= 0 ? '▲' : '▼'}`],
+      ['tesoro', I.tTesoro, 'Tesoro', `${s.tesoro.toFixed(1).replace('.', ',')} mld €`],
+      ['debito', I.tDebito, 'Debito', `${s.debito.toFixed(1).replace('.', ',')}%`],
+      ['lavoro', I.tLavoro, 'Lavoro', `${s.lavoro.toFixed(1).replace('.', ',')}%`],
+      ['inflazione', I.tInfl, 'Inflazione', `${s.inflazione.toFixed(1).replace('.', ',')}%`]
+    ].map(([c, ic, t, v]) => `<div class="stat-tile ${c}">${ic}<div><div class="t">${t}</div><div class="v">${v}</div></div></div>`).join('');
+
+    const U = s.ultimo;
+    const evoRows = [
+      { nome: 'PIL', delta: U.dPil, unita: '%', scala: 1, buono: U.dPil >= 0 },
+      { nome: 'Disoccupazione', delta: U.dDis, unita: ' p.p.', scala: 1, buono: U.dDis <= 0 },
+      { nome: 'Consenso', delta: U.dCons, unita: ' p.p.', scala: 3, buono: U.dCons >= 0 }
+    ];
+    const evo = evoRows.map(e => {
+      const good = e.buono;
+      const w = Math.max(4, Math.min(100, Math.abs(e.delta) / e.scala * 100));
+      return `<div class="evo-row ${good ? 'up' : 'down'}">${e.delta >= 0 ? I.up : I.down}<span class="name">${e.nome}</span>
+        <div class="bar ${good ? 'g' : 'r'}"><i style="width:${w}%"></i></div><span class="val">${sg(e.delta)}${e.unita}</span></div>`;
+    }).join('');
+
+    const eventi = s.registro.slice(0, 3).map(e => `<div class="ev-item ${e.tipo}" data-go="eventi">
+      <div class="thumb">${MINIATURE[e.thumb]}</div><div class="txt">${ICON_BY_TYPE[e.tipo]}<span>${e.titolo}</span></div><span class="chev">›</span></div>`).join('');
+
+    const prio = Motore.prioritaView(s).map(p => `<div class="prio ${p.fatto ? 'done' : ''} ${p.focus ? 'focus' : ''}" data-go="${p.sez}"><div class="box"></div><span>${p.titolo}</span></div>`).join('')
+      || '<div class="prio"><span>Nessuna priorità: il regno è tranquillo.</span></div>';
+
+    return `
+    <div class="pan-banner">${SCENE}
+      <div class="pan-ribbon">${I.crownBig.replace('<svg', '<svg class="crown"')}
+        <div class="plate"><h1>PANORAMICA DEL REGNO</h1></div>
+        <div class="sub">Settimana ${s.settimana} di ${DATA.MESI[s.mese]} ${s.anno}</div>
+      </div>
+    </div>
+    <div class="stat-row">${tiles}</div>
+    <div class="pan-grid">
+      <section class="panel"><header>${I.chart}Evoluzione del turno</header><div class="body">${evo}</div></section>
+      <section class="panel"><header>${I.flag}Eventi principali</header><div class="body">${eventi}</div></section>
+      <section class="panel"><header>${I.parl}Maggioranza parlamentare</header>
+        <div class="parl">${hemicycle(P.partiti, P.totale)}<div class="seats">${governo} / ${P.totale}</div>
+        <div class="stable ${stato[1]}">${stato[1] === '' ? I.check : ''}${stato[0]}</div></div></section>
+      <section class="panel"><header>${I.target}Priorità del turno</header><div class="body"><div class="prio-list">${prio}</div></div></section>
+    </div>`;
+  };
+
+  window.Emiciclo = hemicycle;
+  window.Icone = I;
+  window.bindPanoramica = function () {};
+})();
+
+
+/* js/destra.js */
+// Pannello destro: il Re e il Consiglio del Governo
+(function () {
+  let uid = 0;
+
+  function portrait(o) {
+    const id = 'p' + (uid++);
+    const hair = o.hair, skin = o.skin, shade = o.shade || '#00000022';
+    let back = '', front = '';
+    if (o.style === 'long') {
+      back = `<path d="M24 52 C20 16 80 16 76 52 L80 100 L20 100Z" fill="${hair}"/>`;
+      front = `<path d="M30 46 C32 24 68 24 70 46 C62 34 44 32 36 44 Z" fill="${hair}"/>`;
+    } else if (o.style === 'bob') {
+      back = `<path d="M26 56 C22 18 78 18 74 56 L72 70 L28 70Z" fill="${hair}"/>`;
+      front = `<path d="M30 46 C30 22 70 22 70 46 C60 32 42 30 33 46Z" fill="${hair}"/>`;
+    } else if (o.style === 'gray') {
+      front = `<path d="M30 46 C26 20 74 20 70 46 C68 36 60 30 50 30 C40 30 32 36 30 46Z" fill="${hair}"/>`;
+    } else {
+      front = `<path d="M30 46 C28 22 72 22 70 46 C66 33 52 29 44 32 C36 34 32 38 30 46Z" fill="${hair}"/>`;
+    }
+    const beard = o.beard ? `<path d="M31 52 C32 74 42 78 50 78 C58 78 68 74 69 52 C66 62 60 64 50 64 C40 64 34 62 31 52Z" fill="${o.beard}"/>` : '';
+    const lips = o.female ? '#b0405a' : '#8a4a3a';
+    const extra = o.extra || '';
+    return `<svg viewBox="0 0 100 120" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+      <defs><linearGradient id="${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${o.bg[0]}"/><stop offset="1" stop-color="${o.bg[1]}"/></linearGradient></defs>
+      <rect width="100" height="120" fill="url(#${id})"/>
+      ${back}
+      <path d="M6 120 C6 90 30 82 50 82 C70 82 94 90 94 120Z" fill="${o.suit}"/>
+      ${o.uniform ? `<path d="M30 92 L40 84 M70 92 L60 84" stroke="#e0b34a" stroke-width="2.5"/><circle cx="26" cy="100" r="2.2" fill="#e0b34a"/><circle cx="74" cy="100" r="2.2" fill="#e0b34a"/><rect x="62" y="96" width="10" height="4" fill="#c8312a"/>` : `<path d="M40 83 L50 102 L60 83Z" fill="#f4f1ea"/>${o.tie ? `<path d="M48 90 H52 L54 112 L50 116 L46 112Z" fill="${o.tie}"/>` : ''}`}
+      <rect x="43" y="68" width="14" height="18" fill="${skin}"/><rect x="43" y="68" width="14" height="6" fill="${shade}"/>
+      <ellipse cx="31" cy="52" rx="3.5" ry="5" fill="${skin}"/><ellipse cx="69" cy="52" rx="3.5" ry="5" fill="${skin}"/>
+      <ellipse cx="50" cy="50" rx="19" ry="23" fill="${skin}"/>
+      ${beard}${front}
+      <path d="M38 45 Q42 42 46 45 M54 45 Q58 42 62 45" stroke="${o.brow || hair}" stroke-width="2" fill="none" stroke-linecap="round"/>
+      <ellipse cx="42" cy="49" rx="2.4" ry="1.6" fill="#2a1a10"/><ellipse cx="58" cy="49" rx="2.4" ry="1.6" fill="#2a1a10"/>
+      <path d="M50 50 L48 58 H52" stroke="${shade}" stroke-width="1.4" fill="none"/>
+      <path d="M43 63 Q50 ${o.female ? 68 : 66} 57 63" stroke="${lips}" stroke-width="${o.female ? 2.6 : 2}" fill="none" stroke-linecap="round"/>
+      ${extra}
+    </svg>`;
+  }
+
+  const KING = `<svg viewBox="0 0 380 300" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="kbg" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#1a1208"/><stop offset=".55" stop-color="#6a4a22"/><stop offset="1" stop-color="#7a1414"/></linearGradient>
+      <linearGradient id="kgold" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff0b0"/><stop offset=".5" stop-color="#e0b34a"/><stop offset="1" stop-color="#8a6420"/></linearGradient>
+      <radialGradient id="klight" cx=".5" cy=".4" r=".6"><stop offset="0" stop-color="#ffd890" stop-opacity=".55"/><stop offset="1" stop-color="#000" stop-opacity="0"/></radialGradient>
+    </defs>
+    <rect width="380" height="300" fill="url(#kbg)"/>
+    <path d="M250 0 H380 V300 H300 C320 200 300 100 250 0Z" fill="#8a1a1a" opacity=".85"/>
+    <path d="M270 0 C310 90 330 200 310 300" stroke="#5a0c0c" stroke-width="6" fill="none"/>
+    <rect width="380" height="300" fill="url(#klight)"/>
+    <!-- veste di ermellino -->
+    <path d="M30 300 C40 230 110 205 190 205 C270 205 340 230 350 300Z" fill="#f4f1ea"/>
+    <path d="M130 205 C150 240 230 240 250 205 C240 260 140 260 130 205Z" fill="#d8d2c4"/>
+    ${[[70,262],[100,240],[300,262],[272,240],[60,290],[320,290],[96,276],[284,276],[132,258],[250,258]].map(([x,y])=>`<path d="M${x} ${y} l3 9 l3 -9 l-3 3z" fill="#1a1a1a"/>`).join('')}
+    <!-- manto interno -->
+    <path d="M140 205 L190 300 L240 205 C220 218 160 218 140 205Z" fill="#2a1a4a"/>
+    <path d="M168 225 L190 300 L212 225" stroke="#e0b34a" stroke-width="3" fill="none"/>
+    <circle cx="190" cy="232" r="7" fill="url(#kgold)" stroke="#6b4210"/>
+    <!-- collo e volto -->
+    <rect x="166" y="170" width="48" height="45" fill="#c98f6a"/>
+    <path d="M166 195 Q190 215 214 195 V215 H166Z" fill="#a86f4c" opacity=".6"/>
+    <ellipse cx="136" cy="130" rx="11" ry="17" fill="#c98f6a"/><ellipse cx="244" cy="130" rx="11" ry="17" fill="#c98f6a"/>
+    <path d="M190 50 C145 50 132 90 138 130 C142 170 165 196 190 196 C215 196 238 170 242 130 C248 90 235 50 190 50Z" fill="#d9a07a"/>
+    <path d="M138 130 C142 170 165 196 190 196 C215 196 238 170 242 130 C236 160 215 180 190 180 C165 180 144 160 138 130Z" fill="#c98f6a" opacity=".55"/>
+    <!-- capelli e barba grigi -->
+    <path d="M136 112 C130 70 150 52 190 52 C230 52 250 70 244 112 C240 90 228 78 212 74 C196 82 170 82 156 74 C146 80 138 92 136 112Z" fill="#cfcfcf"/>
+    <path d="M142 136 C146 176 166 196 190 196 C214 196 234 176 238 136 C232 158 218 168 190 168 C162 168 148 158 142 136Z" fill="#d8d8d8"/>
+    <path d="M168 170 Q190 182 212 170 Q190 160 168 170Z" fill="#e8e8e8"/>
+    <!-- espressione -->
+    <path d="M158 103 Q172 94 184 103 M196 103 Q208 94 222 103" stroke="#b0b0b0" stroke-width="5" fill="none" stroke-linecap="round"/>
+    <ellipse cx="170" cy="115" rx="6" ry="3.8" fill="#fff"/><ellipse cx="210" cy="115" rx="6" ry="3.8" fill="#fff"/>
+    <circle cx="172" cy="115" r="3" fill="#3a5a7a"/><circle cx="212" cy="115" r="3" fill="#3a5a7a"/>
+    <path d="M190 118 L184 146 Q190 150 198 146" stroke="#b07a58" stroke-width="2.5" fill="none"/>
+    <path d="M174 160 Q190 154 206 160" stroke="#8a5a40" stroke-width="3" fill="none" stroke-linecap="round"/>
+    <path d="M150 128 q6 4 12 0 M218 128 q6 4 12 0" stroke="#a87a5a" stroke-width="1.5" fill="none"/>
+    <!-- corona -->
+    <path d="M142 62 L134 22 L160 40 L190 8 L220 40 L246 22 L238 62 Z" fill="url(#kgold)" stroke="#5c3f10" stroke-width="3" stroke-linejoin="round"/>
+    <rect x="142" y="58" width="96" height="14" rx="3" fill="url(#kgold)" stroke="#5c3f10" stroke-width="3"/>
+    <path d="M148 66 H232" stroke="#fff0b0" stroke-width="2" opacity=".7"/>
+    <circle cx="190" cy="10" r="6" fill="#d33" stroke="#5c3f10"/><circle cx="134" cy="24" r="5" fill="#3a6fd3" stroke="#5c3f10"/><circle cx="246" cy="24" r="5" fill="#3a6fd3" stroke="#5c3f10"/>
+    <circle cx="190" cy="66" r="5" fill="#3aa860" stroke="#5c3f10"/><circle cx="162" cy="66" r="3.5" fill="#d33"/><circle cx="218" cy="66" r="3.5" fill="#d33"/>
+  </svg>`;
+
+  const SHIELD = `<svg viewBox="0 0 60 70" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="sh1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffe9a0"/><stop offset="1" stop-color="#8a6420"/></linearGradient></defs>
+    <path d="M6 8 H54 V36 C54 52 42 62 30 67 C18 62 6 52 6 36Z" fill="url(#sh1)" stroke="#5c3f10" stroke-width="2"/>
+    <path d="M11 13 H49 V36 C49 49 40 57 30 61 C20 57 11 49 11 36Z" fill="#c8312a"/>
+    <path d="M30 22 C25 22 23 27 24 30 C21 29 19 32 21 35 C22 38 25 38 26 38 L24 47 L30 43 L36 47 L34 38 C35 38 38 38 39 35 C41 32 39 29 36 30 C37 27 35 22 30 22Z" fill="#f6c548" stroke="#6b4210"/>
+    <path d="M18 8 L22 0 L26 6 L30 -2 L34 6 L38 0 L42 8Z" fill="url(#sh1)" stroke="#5c3f10"/></svg>`;
+
+  const CONSIGLIO = [
+    { nome: 'R. Venturi', ruolo: 'Presidente', p: { skin: '#d6a07c', shade: '#b07a58', hair: '#2a2420', style: 'short', suit: '#1c2a44', tie: '#7a1818', bg: ['#4a3a2a', '#1a1410'] } },
+    { nome: 'E. Moretti', ruolo: 'Economia', p: { skin: '#d9a98a', shade: '#b8805e', hair: '#1a1210', style: 'long', female: true, suit: '#111', bg: ['#6a4a2a', '#2a1a10'], extra: '<circle cx="31" cy="60" r="1.8" fill="#e0b34a"/><circle cx="69" cy="60" r="1.8" fill="#e0b34a"/>' } },
+    { nome: 'G. Rinaldi', ruolo: 'Difesa', p: { skin: '#d9a98a', shade: '#b8805e', hair: '#c8c8c8', style: 'gray', suit: '#1a2230', uniform: true, bg: ['#4a4a52', '#1a1a20'] } },
+    { nome: 'G. Ferri', ruolo: 'Lavoro', p: { skin: '#f0c8a8', shade: '#d09a78', hair: '#e8c070', style: 'bob', female: true, suit: '#3a3a42', bg: ['#6a5a3a', '#241c10'] } },
+    { nome: 'L. Bianchi', ruolo: 'Infrastrutture', p: { skin: '#c98f6a', shade: '#a86f4c', hair: '#1a1410', style: 'short', beard: '#2a1c14', suit: '#1c2430', tie: '#3a3a3a', bg: ['#5a4a38', '#1a140e'] } },
+    { nome: 'S. Vitale', ruolo: 'Ambiente', p: { skin: '#d9a98a', shade: '#b8805e', hair: '#241812', style: 'long', female: true, suit: '#16241e', bg: ['#4a5a3a', '#141e10'] } }
+  ];
+
+  window.renderDestra = function (s) {
+    const cards = CONSIGLIO.map((m, i) => { const slot=DATA.CONSIGLIO[i].id, assigned=(s.incarichi||{})[slot], actual=CONSIGLIO.find(x=>DATA.CONSIGLIO[CONSIGLIO.indexOf(x)]?.id===assigned)||m; return `<div class="min-card ${s.sezione === 'governo' && s.ui.ministro === slot ? 'sel' : ''}" data-go="governo" data-min="${slot}">
+      <div class="pic">${portrait(assigned?(CONSIGLIO.find((x,j)=>DATA.CONSIGLIO[j].id===assigned)||m).p:m.p)}</div>
+      <div class="plate"><b>${assigned?(CONSIGLIO.find((x,j)=>DATA.CONSIGLIO[j].id===assigned)||m).nome:'Vacante'}</b><span>${m.ruolo}</span></div></div>`; }).join('');
+    return `
+    <section class="king-card">
+      <div class="king-pic">${KING}</div>
+      <div class="king-plate">${SHIELD}<span>S.M. Re Adriano IV</span></div>
+    </section>
+    <section class="panel council">
+      <header><svg viewBox="0 0 40 30"><g fill="#e0b34a" stroke="#8a6420"><circle cx="20" cy="9" r="6"/><path d="M8 28 C8 15 32 15 32 28Z"/><circle cx="7" cy="13" r="4.5"/><path d="M0 28 C0 19 14 19 14 28Z"/><circle cx="33" cy="13" r="4.5"/><path d="M26 28 C26 19 40 19 40 28Z"/></g></svg>Consiglio del Governo</header>
+      <div class="council-grid">${cards}</div>
+    </section>`;
+  };
+
+  window.Ritratto = portrait;
+  window.RitrattoRe = KING;
+  window.Ministri = CONSIGLIO.map((m, i) => Object.assign({ id: DATA.CONSIGLIO[i].id }, m));
+  window.bindDestra = function () {};
+})();
+
+
+/* js/sezioni.js */
+// Sezioni del menu: Governo, Parlamento, Leggi, Economia, Società, Diplomazia, Eventi
+(function () {
+  const D = DATA, M = Motore, it = M.it, sg = M.sg, clamp = M.clamp;
+  const I = () => window.Icone;
+
+  const head = (titolo, sub) => `<div class="sec-head"><div class="plate"><h1>${titolo}</h1>${sub ? `<div class="sub">${sub}</div>` : ''}</div></div>`;
+  const tagHtml = tags => tags.map(t => `<span class="tag ${t.good ? 'good' : 'bad'}">${t.t}</span>`).join('');
+  const barra = (v, max, cls, soglia) => `<div class="bar ${cls || 'g'}"><i style="width:${clamp(v / max * 100, 0, 100)}%"></i>${soglia != null ? `<u style="left:${soglia / max * 100}%"></u>` : ''}</div>`;
+  const colore = v => (v >= 60 ? 'g' : v >= 40 ? 'y' : 'r');
+  const btn = (txt, attrs, opz) => {
+    opz = opz || {};
+    return `<button class="btn ${opz.cls || ''}" ${attrs} ${opz.dis ? `disabled title="${opz.dis}"` : ''}>${txt}</button>`;
+  };
+  const panel = (titolo, icona, corpo, cls) => `<section class="panel ${cls || ''}"><header>${icona || ''}${titolo}</header><div class="body">${corpo}</div></section>`;
+
+  // ---------------- GOVERNO ----------------
+  function governo(s) {
+    const gov = M.govSeggi(s);
+    const stato = gov >= 111 ? 'Governo stabile' : gov >= 101 ? 'Maggioranza risicata' : 'Governo in minoranza';
+    const partitiGov=s.parlamento.partiti.filter(p=>p.governo);
+    const formula=partitiGov.map(p=>`${p.nome} ${p.seggi}`).join(' + ') || 'Nessun partito al Governo';
+    const top = panel('Coalizione di governo', I().parl,
+      `<div class="coal"><div>${formula} = <b>${gov} / ${s.parlamento.totale}</b> — ${stato}</div>
+       <div class="mini-row"><span>Stabilità</span>${barra(s.stabilita, 100, colore(s.stabilita))}<b>${Math.round(s.stabilita)}%</b></div></div>`);
+    const card = (m, i) => {
+      const idPersona=(s.incarichi||{})[m.id]; const titolare=window.Ministri.find(x=>x.id===idPersona); const mn=titolare||window.Ministri[i], d=m.dir, pronta = (s.dir[m.id] || 0) <= s.turno;
+      const k = (window.Ministri.find(x=>x.id===idPersona)||m).comp / 75;
+      const eff = {};
+      if (d.i) for (const key in d.i) eff[key] = (typeof d.i[key] === 'number') ? d.i[key] * k : d.i[key];
+      if (d.i && d.i.gr) { eff.gr = {}; for (const g in d.i.gr) eff.gr[g] = d.i.gr[g] * k; }
+      if (d.i && d.i.idx) { eff.idx = {}; for (const x in d.i.idx) eff.idx[x] = d.i.idx[x] * k; }
+      let tg = M.tags(eff, { una: true });
+      if (d.mod) tg = tg.concat(M.tags(d.mod.eff).map(t => ({ t: t.t + ' (' + d.mod.turni + ' turni)', good: t.good })));
+      const dis = !pronta ? 'Pronta tra ' + (s.dir[m.id] - s.turno) + ' turni' : (d.costo && s.tesoro < d.costo ? 'Tesoro insufficiente' : '');
+      return `<div class="min-big ${s.ui.ministro === m.id ? 'sel' : ''}">
+        <div class="mb-pic">${window.Ritratto(mn.p)}</div>
+        <div class="mb-txt">
+          <div class="mb-name">${idPersona?mn.nome:'Ministero vacante'}</div><div class="mb-role">${window.Ministri[i].ruolo} · ${idPersona?'incarico assegnato':'nomina necessaria'}</div>
+          <div class="mini-row"><span>Competenza</span>${barra((window.Ministri.find(x=>x.id===idPersona)||m).comp, 100, colore((window.Ministri.find(x=>x.id===idPersona)||m).comp))}<b>${(window.Ministri.find(x=>x.id===idPersona)||m).comp}</b></div><div class="mini-row"><span>Fiducia</span>${barra(s.ministri?.fiducia?.[idPersona]??65,100,colore(s.ministri?.fiducia?.[idPersona]??65))}<b>${Math.round(s.ministri?.fiducia?.[idPersona]??65)}%</b></div>
+          <div class="mb-dir"><b>${d.nome}</b><span>${d.desc}</span><div class="tags">${tagHtml(tg)}</div></div>
+          <div class="mb-act"><label class="mini-label">Assegna incarico</label><select data-rimpasto="${m.id}">${window.Ministri.map(x=>`<option value="${x.id}" ${x.id===idPersona?'selected':''}>${x.nome}</option>`).join('')}</select></div>
+          <div class="mb-act">${d.costo ? `<span class="cost">${it(d.costo)} mld</span>` : '<span class="cost">gratis</span>'}${btn(pronta ? 'Esegui' : 'In attesa', `data-act="direttiva" data-id="${m.id}"`, { dis: !idPersona?'Ministero vacante: nomina un titolare.':dis })}</div>
+        </div></div>`;
+    };
+    const sc=s.ministri?.scandalo;
+    const scandalo=sc?panel('Scandalo al Governo',I().alert,`<div class="law-card"><h3>${sc.nome}</h3><p>Accuse: ${sc.accusa}. Devi decidere come reagire.</p><div class="acts">${btn('Difendi il ministro',`data-act="scandalo" data-scelta="difendi"`,{cls:'sec'})}${btn('Apri indagine indipendente',`data-act="scandalo" data-scelta="indaga"`,{cls:'ghost'})}${btn('Rimuovi dall’incarico',`data-act="scandalo" data-scelta="rimuovi"`,{cls:'danger'})}</div></div>`):'';
+    const dim=s.ministri?.dimissioni||[];
+    const dimPanel=dim.length?panel('Dimissioni e vacanze',I().alert,dim.slice(0,4).map(x=>`<div class="vote-row ko"><b>${x.nome}</b><span>${x.causa} · turno ${x.turno}</span></div>`).join('')):'';
+    return head('GOVERNO', 'Il Consiglio al lavoro') + top + scandalo + `<div class="grid3">${D.CONSIGLIO.map(card).join('')}</div>` + dimPanel;
+  }
+
+  // ---------------- PARLAMENTO ----------------
+  function parlamento(s) {
+    const gov = M.govSeggi(s);
+    const prossima = M.ELEZIONI.find(t => t > s.turno);
+    const emi = panel('Emiciclo', I().parl, `<div class="parl big">${window.Emiciclo(s.parlamento.partiti, s.parlamento.totale)}<div class="seats">${gov} / ${s.parlamento.totale}</div>
+      <div class="stable ${gov >= 111 ? '' : gov >= 101 ? 'warn' : 'bad'}">${gov >= 111 ? 'Governo stabile' : gov >= 101 ? 'Maggioranza risicata' : 'Governo in minoranza'}</div></div>`);
+    const righe = s.parlamento.partiti.map(p => `<div class="party-row"><i style="background:${p.colore}"></i><b>${p.nome}</b><span class="ruolo">${p.governo ? 'Governo' : 'Opposizione'}</span>
+      <div class="bar"><i style="background:${p.colore};width:${p.seggi}%"></i></div><em>${p.seggi}</em></div>`).join('');
+    const partiti = panel('I partiti', I().flag, righe + `<div class="note">Per approvare una legge servono almeno 101 voti su 200.</div>`);
+    const voti = s.leggi.storicoVoti.length
+      ? s.leggi.storicoVoti.map(v => `<div class="vote-row ${v.ok ? 'ok' : 'ko'}"><b>${v.nome}</b><span>${v.fase||'Votazione'} · ${v.ok ? 'Approvata' : 'Respinta'} ${v.si}–${v.no}</span><em>turno ${v.turno}</em></div>`).join('')
+      : '<div class="note">Nessuna votazione finora. Proponi una legge dalla sezione Leggi.</div>';
+    const ult = panel('Ultime votazioni', I().target, voti);
+    const el = panel('Elezioni', I().check, prossima
+      ? `<div class="big-num">${prossima - s.turno}</div><div class="note">turni alle prossime elezioni politiche (turno ${prossima}). Il consenso e la stabilità decidono i seggi della coalizione.</div>`
+      : '<div class="note">Non ci sono altre elezioni in questa partita.</div>');
+    const pol=s.politica||{fiducia:{verdi:68,blu:68},richieste:[],opposizione:{pressione:0,iniziative:0}};
+    const trust=['verdi','blu'].map(id=>{const p=s.parlamento.partiti.find(x=>x.id===id);return `<div class="mini-row"><span>${p.nome}</span>${barra(pol.fiducia?.[id]??68,100,colore(pol.fiducia?.[id]??68))}<b>${Math.round(pol.fiducia?.[id]??68)}%</b></div>`}).join('');
+    const req=(pol.richieste||[]).filter(r=>r.stato==='In attesa').map(r=>`<article class="law-card"><div class="lc-top"><h3>${r.nome} · ${r.tema}</h3><span class="cat">Richiesta politica</span></div><p>Il partner chiede al Governo di ${r.testo}.</p><div class="acts">${btn('Accogli',`data-act="politica" data-id="${r.id}" data-scelta="accogli"`)}${btn('Negozia',`data-act="politica" data-id="${r.id}" data-scelta="negozia"`,{cls:'sec'})}${btn('Respingi',`data-act="politica" data-id="${r.id}" data-scelta="respingi"`,{cls:'ghost'})}</div></article>`).join('')||'<div class="note">Nessuna richiesta pendente dai partner.</div>';
+    const iniziativa=pol.opposizione?.ultimaProposta?`<div class="note"><b>Ultima iniziativa dell’opposizione · turno ${pol.opposizione.ultimaProposta.turno}</b><br>${pol.opposizione.ultimaProposta.tema}</div>`:'';
+    const mozione=pol.mozione?`<article class="law-card"><div class="lc-top"><h3>MOZIONE DI SFIDUCIA</h3><span class="cat">${pol.mozione.stato}</span></div><p>Presentata da ${pol.mozione.proponente} ${pol.mozione.motivo?`· Motivo: ${pol.mozione.motivo}`:''}</p>${pol.mozione.si!=null?`<div class="note">Esito: ${pol.mozione.si} favorevoli · ${pol.mozione.no} contrari</div>`:''}${pol.mozione.stato==='Da votare'?`<div class="acts">${btn('Metti ai voti la sfiducia',`data-act="sfiducia"`,{cls:'danger'})}</div>`:''}</article>`:'';
+    const storicoMozioni=(pol.storicoMozioni||[]).map(m=>`<div class="vote-row ${m.stato==='Respinta'?'ok':'ko'}"><b>Mozione · turno ${m.turno}</b><span>${m.stato} ${m.si!=null?`${m.si}–${m.no}`:''}</span></div>`).join('');
+    const crisiG=pol.crisiGoverno?`<article class="law-card"><div class="lc-top"><h3>CONSULTAZIONI PER IL NUOVO GOVERNO</h3><span class="cat">Crisi aperta · turno ${pol.crisiGoverno.turno}</span></div><p>Il Governo è caduto dopo il voto di sfiducia (${pol.crisiGoverno.si}–${pol.crisiGoverno.no}). La legislatura non è finita: scegli come ricostruire una maggioranza.</p><div class="acts">${btn('Governo di compromesso',`data-act="governo" data-scelta="compromesso"`)}${btn('Unità nazionale',`data-act="governo" data-scelta="unita"`,{cls:'sec'})}${btn('Elezioni anticipate',`data-act="governo" data-scelta="elezioni"`,{cls:'ghost'})}</div></article>`:'';
+    const accordi=(s.programma?.accordi||[]).map(a=>`<div class="vote-row ok"><b>${a.nome} · ${a.partito}</b><span>Turno ${a.turno}</span></div>`).join('');
+    const programma=panel('Patto di maggioranza',I().flag,`<div class="note">Negozia priorità condivise: costano risorse, ma rafforzano la fiducia dei partner.</div>`+['verdi','blu'].filter(id=>s.parlamento.partiti.some(p=>p.id===id&&p.governo)).map(id=>`<div class="law-card"><b>${id==='verdi'?'Verdi':'Blu'}</b><div class="acts">${btn('Patto sociale',`data-act="programma" data-partito="${id}" data-tema="sociale"`,{cls:'sec'})}${btn('Crescita',`data-act="programma" data-partito="${id}" data-tema="crescita"`,{cls:'sec'})}${btn('Patto verde',`data-act="programma" data-partito="${id}" data-tema="ambiente"`,{cls:'sec'})}</div></div>`).join('')+(accordi?`<div class="subhead">Accordi firmati</div>${accordi}`:''));
+    const autonomia=panel('Equilibri della coalizione',I().flag,crisiG+trust+`<div class="note">Pressione dell’opposizione: ${pol.opposizione?.pressione??0}/10 · iniziative autonome: ${pol.opposizione?.iniziative??0}</div>`+iniziativa+mozione+(storicoMozioni?`<div class="subhead">Mozioni precedenti</div>${storicoMozioni}`:'')+req);
+    const sg=s.sondaggi||{governo:s.consenso,partiti:{},storico:[]};
+    const righeSondaggio=s.parlamento.partiti.map(p=>{
+      const val=Number(sg.partiti?.[p.id]??(100*p.seggi/200));
+      return `<div class="mini-row"><span>${p.nome}</span><div class="bar"><i style="width:${val}%;background:${p.colore}"></i></div><b>${val.toFixed(1).replace('.',',')}%</b></div>`;
+    }).join('');
+    const storicoSondaggi=(sg.storico||[]).slice(0,5).map(x=>`<div class="vote-row"><b>Turno ${x.turno}</b><span>Governo ${Number(x.governo).toFixed(1).replace('.',',')}%</span></div>`).join('');
+    const sondaggi=panel('Sondaggi e consenso',I().chart,`<div class="big-num">${Number(sg.governo??s.consenso).toFixed(1).replace('.',',')}%</div><div class="note">Giudizio positivo sull’operato del Governo · ultima rilevazione: turno ${sg.ultimaRilevazione??s.turno}</div>${righeSondaggio}${storicoSondaggi?`<div class="subhead">Rilevazioni precedenti</div>${storicoSondaggi}`:''}`);
+    const prossimaCampagna=M.ELEZIONI.find(t=>t>s.turno),aperta=prossimaCampagna!=null&&prossimaCampagna-s.turno<=12;
+    const camp=s.campagna||{ultima:0,bonus:{},storico:[]};
+    const scelteCampagna=['verdi','blu'].filter(id=>s.parlamento.partiti.some(p=>p.id===id&&p.governo)).map(id=>`<div class="law-card"><b>${id==='verdi'?'Verdi':'Blu'} · vantaggio campagna ${Number(camp.bonus?.[id]||0).toFixed(1)}</b><div class="acts">${btn('Territorio',`data-act="campagna" data-partito="${id}" data-strategia="territorio"`,{cls:'sec',dis:!aperta?'Disponibile negli ultimi 12 turni prima delle elezioni':''})}${btn('Media',`data-act="campagna" data-partito="${id}" data-strategia="media"`,{cls:'sec',dis:!aperta?'Disponibile negli ultimi 12 turni prima delle elezioni':''})}${btn('Programma',`data-act="campagna" data-partito="${id}" data-strategia="programma"`,{cls:'sec',dis:!aperta?'Disponibile negli ultimi 12 turni prima delle elezioni':''})}</div></div>`).join('');
+    const storicoCamp=(camp.storico||[]).slice(0,4).map(x=>`<div class="vote-row"><b>${x.partito}</b><span>${x.nome} · turno ${x.turno}</span></div>`).join('');
+    const campagna=panel('Campagna elettorale',I().flag,`<div class="note">${aperta?`Campagna aperta: ${prossimaCampagna-s.turno} turni al voto.`:prossimaCampagna?`Si aprirà negli ultimi 12 turni prima del voto (turno ${prossimaCampagna}).`:'Non sono previste altre elezioni.'} Ogni iniziativa ha un costo per il tesoro.</div>${scelteCampagna}${storicoCamp}`);
+    const leadership=panel('Leadership e coesione',I().people,['verdi','blu'].filter(id=>s.parlamento.partiti.some(p=>p.id===id&&p.governo)).map(id=>{
+      const l=s.leadership?.[id]||{fiducia:65,tensione:20};
+      return `<div class="law-card"><b>${id==='verdi'?'Verdi':'Blu'}</b><div class="mini-row"><span>Fiducia del leader</span>${barra(l.fiducia,100,colore(l.fiducia))}<b>${Math.round(l.fiducia)}%</b></div><div class="mini-row"><span>Tensione interna</span>${barra(l.tensione,100,l.tensione>60?'r':'g')}<b>${Math.round(l.tensione)}%</b></div><div class="acts">${btn('Sostieni il leader',`data-act="leadership" data-partito="${id}" data-scelta="sostieni"`,{cls:'sec'})}${btn('Mediazione interna',`data-act="leadership" data-partito="${id}" data-scelta="media"`,{cls:'ghost'})}</div></div>`;
+    }).join('')||'<div class="note">Nessun partito di coalizione al Governo.</div>');
+    return head('PARLAMENTO' , 'Duecento seggi, cinque partiti') + `<div class="grid2">${emi}${partiti}</div><div class="grid2">${ult}${el}</div><div class="grid2">${sondaggi}${leadership}</div>${campagna}${programma}${autonomia}`;
+  }
+
+  // ---------------- LEGGI ----------------
+  function leggeCard(s, L, modo) {
+    const d = s.leggi.inDiscussione.find(x => x.id === L.id);
+    const v = M.proiezione(L.id, d && d.neg);
+    const blocco = (s.leggi.bloccate[L.id] || 0) - s.turno;
+    const supporto = `<div class="support"><span>Sostegno previsto</span>${barra(v.si, 200, v.ok ? 'g' : 'r', 101)}<b class="${v.ok ? 'pos' : 'neg'}">${v.si} / 200</b></div>`;
+    let azioni = '';
+    if (modo === 'catalogo') {
+      const dis = s.leggi.inDiscussione.length >= 3 ? 'Al massimo tre leggi in discussione' : blocco > 0 ? 'Respinta da poco: riprova tra ' + blocco + ' turni' : s.tesoro < L.costo ? 'Tesoro insufficiente' : '';
+      azioni = btn('Proponi', `data-act="proponi" data-id="${L.id}"`, { dis });
+    } else if (modo === 'discussione') {
+      const fase=d.fase||'commissione';
+      const label={commissione:'In istruttoria · '+(d.avanzamento||0)+'/3',camera:'Pronta per il voto della Camera',senato:'Approvata alla Camera · attende il Senato',promulgazione:'Approvata da entrambe le Camere',respinta:'Respinta'};
+      azioni = `<div class="note">${label[fase]||'In iter'}${d.camera?` · Camera ${d.camera.si}–${d.camera.no}`:''}${d.senato?` · Senato ${d.senato.si}–${d.senato.no}`:''}</div>`;
+      if(d.emendamento){
+        azioni += `<div class="note"><b>Emendamento dell’opposizione:</b> ${d.emendamento.testo}<br>Esito: ${d.emendamento.stato}</div>`;
+        if(d.emendamento.stato==='Proposto') azioni += btn('Accogli emendamento',`data-act="emendamento" data-id="${L.id}" data-scelta="accogli"`,{cls:'sec'})+btn('Respingi emendamento',`data-act="emendamento" data-id="${L.id}" data-scelta="respingi"`,{cls:'ghost'});
+      }
+      if(fase==='camera') azioni+=btn('Vota alla Camera',`data-act="camera" data-id="${L.id}"`);
+      if(fase==='senato') azioni+=btn('Vota al Senato',`data-act="senato" data-id="${L.id}"`);
+      if(fase==='promulgazione') azioni+=btn('Promulga la legge',`data-act="promulga" data-id="${L.id}"`,{dis:s.tesoro<L.costo?'Tesoro insufficiente':''});
+      azioni += btn('Ritira', `data-act="ritira" data-id="${L.id}"`, { cls: 'ghost' });
+    } else {
+      azioni = btn('Abroga', `data-act="abroga" data-id="${L.id}"`, { cls: 'ghost' });
+    }
+    return `<article class="law-card"><div class="lc-top"><h3>${L.nome}</h3><span class="cat">${L.cat}</span></div>
+      <p>${L.desc}</p><div class="tags">${tagHtml(M.tags(L.eff))}</div>
+      ${modo === 'vigore' ? '' : supporto}
+      <div class="lc-bot"><span class="cost">${modo === 'vigore' ? 'In vigore' : 'Costo ' + it(L.costo) + ' mld'}</span><div class="acts">${azioni}</div></div></article>`;
+  }
+  function leggi(s) {
+    const tab = s.ui.leggiTab, cat = s.ui.leggiCat;
+    const cats = ['Tutte'].concat(Array.from(new Set(D.LEGGI.map(l => l.cat))));
+    const tabs = [['catalogo', 'Catalogo'], ['discussione', `In discussione (${s.leggi.inDiscussione.length}/3)`], ['vigore', `In vigore (${s.leggi.inVigore.length})`]]
+      .map(([id, t]) => `<button class="tab ${tab === id ? 'on' : ''}" data-act="tab" data-id="${id}">${t}</button>`).join('');
+    let corpo = '';
+    if (tab === 'catalogo') {
+      const lista = D.LEGGI.filter(l => !s.leggi.inVigore.includes(l.id) && !s.leggi.inDiscussione.some(d => d.id === l.id) && (cat === 'Tutte' || l.cat === cat));
+      corpo = `<div class="chips">${cats.map(c => `<button class="chip ${cat === c ? 'on' : ''}" data-act="cat" data-id="${c}">${c}</button>`).join('')}</div>
+        <div class="grid2">${lista.map(l => leggeCard(s, l, 'catalogo')).join('') || '<div class="note">Nessuna legge in questa categoria.</div>'}</div>`;
+    } else if (tab === 'discussione') {
+      corpo = s.leggi.inDiscussione.length
+        ? `<div class="note top">L’istruttoria avanza con i turni. Poi voti separatamente alla Camera e al Senato; solo dopo puoi promulgare la legge. Negoziare costa 0,3 mld.</div><div class="grid2">${s.leggi.inDiscussione.map(d => leggeCard(s, D.legge(d.id), 'discussione')).join('')}</div>`
+        : '<div class="note top">Nessuna legge in discussione. Scegline una dal catalogo.</div>';
+    } else {
+      corpo = `<div class="grid2">${s.leggi.inVigore.map(id => leggeCard(s, D.legge(id), 'vigore')).join('')}</div>`;
+    }
+    return head('LEGGI', 'Il potere delle leggi') + `<div class="tabs">${tabs}</div>${corpo}`;
+  }
+
+  // ---------------- ECONOMIA ----------------
+  function grafico(s, titolo, key, fmt, col) {
+    const pts = s.storia.slice(-60).map(p => p[key]);
+    const mn = Math.min(...pts), mx = Math.max(...pts), r = (mx - mn) || 1;
+    const W = 300, H = 64;
+    const xy = pts.map((v, i) => [i / Math.max(1, pts.length - 1) * W, H - 6 - (v - mn) / r * (H - 14)]);
+    const path = xy.map((p, i) => (i ? 'L' : 'M') + p[0].toFixed(1) + ' ' + p[1].toFixed(1)).join(' ');
+    const prev = pts[Math.max(0, pts.length - 9)], last = pts[pts.length - 1];
+    return `<div class="chart"><div class="ch-top"><span>${titolo}</span><b>${fmt(last)}</b></div>
+      <svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none"><path d="${path} L${W} ${H} L0 ${H} Z" fill="${col}" opacity=".16"/><path d="${path}" fill="none" stroke="${col}" stroke-width="2.4" stroke-linejoin="round" vector-effect="non-scaling-stroke"/></svg>
+      <div class="ch-foot"><span>min ${fmt(mn)}</span><span>${last >= prev ? '▲' : '▼'} ultimi turni</span><span>max ${fmt(mx)}</span></div></div>`;
+  }
+  function slider(k, titolo, min, max, val, hint, unita) {
+    return `<div class="slider"><div class="sl-top"><b>${titolo}</b><output id="o-${k}">${val}${unita}</output></div>
+      <input type="range" min="${min}" max="${max}" value="${val}" data-budget="${k}" data-unita="${unita}"><div class="hint">${hint}</div></div>`;
+  }
+  function economia(s) {
+    const F = M.flussoPrevisto(s), b = s.budget;
+    const graf = `<div class="charts">${grafico(s, 'PIL (crescita)', 'pil', v => sg(v) + '%', '#1f8a3c')}${grafico(s, 'Inflazione', 'infl', v => it(v) + '%', '#b3261e')}${grafico(s, 'Occupazione', 'lav', v => it(v) + '%', '#6a3aa8')}
+      ${grafico(s, 'Tesoro (mld)', 'tes', v => it(v) + ' mld', '#8a6420')}${grafico(s, 'Debito (% PIL)', 'deb', v => it(v) + '%', '#7a1410')}${grafico(s, 'Consenso', 'cons', v => Math.round(v) + '%', '#1f5fa8')}</div>`;
+    const bud = panel('Bilancio dello Stato', I().chart, `
+      <div class="bud-grid">
+        ${slider('tasse', 'Aliquota media', 20, 48, b.tasse, 'Più entrate, ma meno crescita e consenso.', '%')}
+        ${slider('sociale', 'Spesa sociale', 0, 100, b.sociale, 'Sanità e istruzione, gradimento di lavoratori e anziani.', '')}
+        ${slider('infra', 'Spesa per le opere', 0, 100, b.infra, 'Sostiene la crescita nel tempo.', '')}
+        ${slider('sicurezza', 'Spesa per la sicurezza', 0, 100, b.sicurezza, 'Ordine pubblico e stabilità.', '')}
+      </div>`);
+    const sal = panel('Cassa per turno', I().chart, `
+      <div class="flow"><div><span>Entrate</span><b class="pos">+${it(F.entrate, 2)}</b></div><div><span>Spese</span><b class="neg">−${it(F.spese, 2)}</b></div><div><span>Leggi e accordi</span><b class="${F.extra >= 0 ? 'pos' : 'neg'}">${sg(F.extra, 2)}</b></div></div>
+      <div class="saldo ${F.saldo >= 0 ? 'pos' : 'neg'}">Saldo previsto: ${sg(F.saldo, 2)} mld a turno</div>
+      <div class="note">Le spese dello Stato crescono col tempo: tieni d'occhio il saldo.</div>
+      <div class="acts">${btn('Rimborsa 1 mld di debito', 'data-act="rimborsa"', { dis: s.tesoro < 1 ? 'Servono almeno 1 mld in cassa' : '' })}</div>`);
+    return head('ECONOMIA', 'Entrate, spese e indicatori') + graf + `<div class="grid2 wide-left">${bud}${sal}</div>`;
+  }
+
+  // ---------------- SOCIETÀ ----------------
+  function societa(s) {
+    const g = [['lav', 'Lavoratori'], ['imp', 'Imprese'], ['gio', 'Giovani'], ['anz', 'Anziani']];
+    const gr = panel('Gradimento per gruppo', '', g.map(([k, n]) => `<div class="mini-row big"><span>${n}</span>${barra(s.gruppi[k], 100, colore(s.gruppi[k]))}<b>${Math.round(s.gruppi[k])}%</b></div>`).join('')
+      + `<div class="note">Il consenso generale (${Math.round(s.consenso)}%) è la media pesata dei quattro gruppi.</div>`);
+    const x = [['sanita', 'Sanità'], ['istruzione', 'Istruzione'], ['ambiente', 'Ambiente'], ['sicurezza', 'Sicurezza']];
+    const idx = panel('Servizi e qualità della vita', '', x.map(([k, n]) => `<div class="mini-row big"><span>${n}</span>${barra(s.indici[k], 100, colore(s.indici[k]))}<b>${Math.round(s.indici[k])}</b></div>`).join('')
+      + `<div class="note">Si migliorano con le leggi e con la spesa sociale e per la sicurezza.</div>`);
+    const q = [];
+    if (s.indici.sanita < 55) q.push('Gli ospedali sono in affanno.');
+    if (s.indici.istruzione < 50) q.push('Le scuole perdono qualità: i giovani se ne vanno.');
+    if (s.indici.ambiente < 48) q.push('L\'ambiente è in sofferenza: rischio di alluvioni e siccità.');
+    if (s.indici.sicurezza < 50) q.push('Cresce la richiesta di sicurezza nelle città.');
+    if (s.inflazione > 3) q.push('I prezzi salgono più in fretta degli stipendi.');
+    if (s.lavoro < 91) q.push('Troppe persone cercano lavoro.');
+    if (s.gruppi.imp < 40) q.push('Le imprese sono scontente e frenano gli investimenti.');
+    const umore = s.consenso >= 65 ? 'Il popolo ti ama.' : s.consenso >= 50 ? 'Il regno è sereno.' : s.consenso >= 35 ? 'Il malcontento cresce.' : 'Il popolo è furioso.';
+    const qq = panel('Clima del regno', '', `<div class="umore">${umore}</div>` + (q.length ? `<ul class="issues">${q.map(t => `<li>${t}</li>`).join('')}</ul>` : '<div class="note">Nessuna questione urgente.</div>'));
+    return head('SOCIETÀ', 'Persone, servizi e umore') + `<div class="grid2">${gr}${idx}</div>${qq}`;
+  }
+
+  // ---------------- DIPLOMAZIA ----------------
+  const bandiera = c => `<svg viewBox="0 0 60 40"><rect width="60" height="40" fill="${c[0]}"/><path d="M0 40 L60 0 V16 L22 40Z" fill="${c[1]}"/><circle cx="18" cy="14" r="5" fill="${c[1]}" opacity=".9"/><rect width="60" height="40" fill="none" stroke="#5c3f10" stroke-width="2"/></svg>`;
+  const livello = r => (r >= 80 ? 'Alleata' : r >= 65 ? 'Cordiale' : r >= 50 ? 'Neutrale' : r >= 35 ? 'Fredda' : 'Ostile');
+  function diplomazia(s) {
+    const righe = D.NAZIONI.map(N => {
+      const n = s.diplomazia[N.id], rel = Math.round(n.rel);
+      const d1 = s.turno - n.ultima < 3 ? 'Una missione ogni 3 turni' : s.tesoro < 0.2 ? 'Tesoro insufficiente' : '';
+      const d2 = n.accordo ? 'Già firmato' : rel < 55 ? 'Servono relazioni ≥ 55' : s.tesoro < 0.5 ? 'Tesoro insufficiente' : '';
+      const d3 = n.patto ? 'Già firmato' : rel < 65 ? 'Servono relazioni ≥ 65' : s.tesoro < 0.8 ? 'Tesoro insufficiente' : '';
+      return `<div class="nat-row"><div class="flag">${bandiera(N.col)}</div>
+        <div class="nat-info"><h3>${N.nome}</h3><p>${N.desc}</p>
+          <div class="mini-row"><span>${livello(rel)}</span>${barra(rel, 100, colore(rel))}<b>${rel}</b></div>
+          <div class="tags">${n.accordo ? '<span class="tag good">Accordo commerciale</span>' : ''}${n.patto ? '<span class="tag good">Patto di difesa</span>' : ''}</div></div>
+        <div class="nat-act">
+          ${btn('Missione <small>0,2 mld</small>', `data-act="diplo" data-id="${N.id}" data-az="missione"`, { dis: d1 })}
+          ${btn('Accordo commerciale <small>0,5 mld</small>', `data-act="diplo" data-id="${N.id}" data-az="accordo"`, { cls: 'sec', dis: d2 })}
+          ${btn('Patto di difesa <small>0,8 mld</small>', `data-act="diplo" data-id="${N.id}" data-az="patto"`, { cls: 'sec', dis: d3 })}
+        </div></div>`;
+    }).join('');
+    return head('DIPLOMAZIA', 'Alleati, rivali e trattati') + `<div class="nat-list">${righe}</div>
+      <div class="note foot">Un accordo commerciale dà PIL ed entrate; un patto di difesa dà stabilità ma può irritare Karvia.</div>`;
+  }
+
+  // ---------------- EVENTI ----------------
+  function eventi(s) {
+    const att = s.eventi.map(ev => {
+      const def = D.evento(ev.id), rim = ev.scade - s.turno;
+      const sc = def.scelte.map((c, i) => {
+        const dis = c.costo && s.tesoro < c.costo ? 'Tesoro insufficiente' : '';
+        let tg = M.tags(c.i, { una: true });
+        if (c.mod) tg = tg.concat(M.tags(c.mod.eff).map(t => ({ t: t.t + ' (' + c.mod.turni + ' turni)', good: t.good })));
+        return `<button class="choice" data-act="scegli" data-uid="${ev.uid}" data-idx="${i}" ${dis ? `disabled title="${dis}"` : ''}>
+          <span class="ct">${c.t}</span><span class="cc">${c.costo ? it(c.costo) + ' mld' : 'gratis'}</span><span class="tags">${tagHtml(tg)}</span></button>`;
+      }).join('');
+      return `<article class="ev-card ${def.tipo}"><div class="ev-img">${MINIATURE[def.thumb]}</div>
+        <div class="ev-body"><div class="ev-top"><h3>${def.titolo}</h3><span class="due ${rim <= 2 ? 'urgent' : ''}">scade tra ${rim} ${rim === 1 ? 'turno' : 'turni'}</span></div>
+        <p>${def.testo}</p><div class="choices">${sc}</div>
+        <div class="note">Se non decidi, sarà scelta: «${def.scelte[def.def].t}».</div></div></article>`;
+    }).join('') || '<div class="note top">Nessun evento in attesa: il regno è tranquillo.</div>';
+    const cron = s.registro.slice(0, 12).map(r => `<div class="cron ${r.tipo}"><b>${r.titolo}</b>${r.esito ? `<span>→ ${r.esito}</span>` : ''}<em>turno ${r.turno}</em></div>`).join('');
+    return head('EVENTI', s.eventi.length ? `${s.eventi.length} in attesa di una decisione` : 'Tutto sotto controllo') + att + panel('Cronaca del regno', I().flag, cron);
+  }
+
+  window.Sezioni = { governo, parlamento, leggi, economia, societa, diplomazia, eventi };
+})();
+
+
+/* js/app.js */
+// Rendering di barra superiore e menu laterale
+const fmt = (n, d = 1) => n.toFixed(d).replace('.', ',');
+
+const NAV = [
+  { id: 'panoramica', label: 'Panoramica', icon: 'home' },
+  { id: 'governo', label: 'Governo', icon: 'crown' },
+  { id: 'parlamento', label: 'Parlamento', icon: 'parliament' },
+  { id: 'leggi', label: 'Leggi', icon: 'laws' },
+  { id: 'economia', label: 'Economia', icon: 'economy' },
+  { id: 'societa', label: 'Società', icon: 'society' },
+  { id: 'diplomazia', label: 'Diplomazia', icon: 'diplomacy' },
+  { id: 'eventi', label: 'Eventi', icon: 'alert' }
+];
+
+function renderTopbar(s) {
+  const pilSign = s.pil >= 0 ? '+' : '';
+  document.getElementById('topbar').innerHTML = `
+    <div class="brand">
+      ${Icons.crest}
+      <div>
+        <div class="brand-title">EQUILIBRI 3.5</div>
+        <div class="brand-sub">Il Potere delle Leggi</div>
+      </div>
+    </div>
+    <div class="top-cell kingdom">${Icons.flag}<span class="label">${s.regno}</span></div>
+    <div class="top-cell date">${Icons.calendar}
+      <div class="stack"><span class="label">Anno ${s.anno}</span><span class="small">Turno ${s.turno} / ${s.turniTotali}</span></div>
+    </div>
+    <div class="top-cell">${Icons.chartUp}
+      <div class="stack"><span class="label">PIL</span><span class="value pos">${pilSign}${fmt(s.pil)}%</span></div>
+    </div>
+    <div class="top-cell">${Icons.coins}
+      <div class="stack"><span class="label">Tesoro</span><span class="value">${fmt(s.tesoro)} mld €</span></div>
+    </div>
+    <div class="top-cell">${Icons.people}
+      <div class="stack"><span class="label">Consenso</span><span class="value">${Math.round(s.consenso)}%</span></div>
+    </div>
+    <div class="top-cell">${Icons.scales}
+      <div class="stack"><span class="label">Stabilità</span><span class="value">${Math.round(s.stabilita)}%</span></div>
+    </div>
+    <div class="top-spacer"></div>
+    <div class="top-actions">
+      <button class="round-btn" title="Aiuto" data-act="aiuto">${Icons.question}</button>
+      <button class="round-btn" title="Impostazioni" data-act="impost">${Icons.gear}</button>
+    </div>`;
+}
+
+const SCENE = `
+<svg viewBox="0 0 240 300" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="sk" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7fb3d9"/><stop offset=".6" stop-color="#cfe3ea"/><stop offset="1" stop-color="#f4e6c0"/></linearGradient>
+    <linearGradient id="wt" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#4f8aa8"/><stop offset="1" stop-color="#2a5a73"/></linearGradient>
+  </defs>
+  <rect width="240" height="300" fill="url(#sk)"/>
+  <path d="M0 110 L40 70 L70 95 L110 55 L150 90 L190 65 L240 100 V180 H0 Z" fill="#7a95a8"/>
+  <path d="M0 125 L50 95 L90 120 L140 85 L200 115 L240 105 V190 H0 Z" fill="#5f8a6a"/>
+  <path d="M0 150 Q60 130 120 150 T240 145 V220 H0 Z" fill="#3f7a45"/>
+  <!-- castello sul colle -->
+  <path d="M10 170 Q40 140 80 150 L110 170 Z" fill="#4a7a3a"/>
+  <rect x="38" y="118" width="40" height="34" fill="#e8dcc0" stroke="#7a6a48"/>
+  <rect x="34" y="102" width="12" height="50" fill="#efe3c8" stroke="#7a6a48"/>
+  <rect x="68" y="108" width="12" height="44" fill="#efe3c8" stroke="#7a6a48"/>
+  <path d="M32 102 L40 88 L48 102 Z" fill="#a8452c"/><path d="M66 108 L74 94 L82 108 Z" fill="#a8452c"/>
+  <!-- case -->
+  ${[0,1,2,3,4,5].map(i=>`
+    <rect x="${20+i*34}" y="${190+(i%2)*6}" width="28" height="26" fill="#f1dfae" stroke="#8a6a3a"/>
+    <path d="M${17+i*34} ${190+(i%2)*6} L${34+i*34} ${176+(i%2)*6} L${51+i*34} ${190+(i%2)*6} Z" fill="${i%2?'#b3492d':'#c8683a'}" stroke="#7a3a20"/>
+    <rect x="${28+i*34}" y="${198+(i%2)*6}" width="6" height="8" fill="#5a3a1a"/>`).join('')}
+  <!-- fiume e ponte -->
+  <rect y="232" width="240" height="68" fill="url(#wt)"/>
+  <path d="M0 236 H240" stroke="#9fd0e6" stroke-width="1" opacity=".6"/>
+  <path d="M-10 244 Q30 225 70 244 T150 244 T250 244 V256 H-10 Z" fill="#c9bfa0" stroke="#6a5a3a" stroke-width="1.5"/>
+  <path d="M10 256 Q30 240 50 256 M70 256 Q90 240 110 256 M130 256 Q150 240 170 256 M190 256 Q210 240 230 256" fill="none" stroke="#6a5a3a" stroke-width="2"/>
+  <!-- alberi -->
+  ${[8,226,214].map((x,i)=>`<circle cx="${x}" cy="${268+i*4}" r="14" fill="#2f6b35"/><circle cx="${x+6}" cy="${262+i*4}" r="10" fill="#3f8a45"/>`).join('')}
+</svg>`;
+
+function renderSidebar(s) {
+  const items = NAV.map(n => `
+    <button class="nav-item ${s.sezione === n.id ? 'active' : ''}" data-nav="${n.id}">
+      ${Icons[n.icon]}<span>${n.label}</span>
+      ${n.id === 'eventi' && s.eventi.length > 0 ? `<span class="badge">${s.eventi.length}</span>` : ''}
+    </button>`).join('');
+  document.getElementById('sidebar').innerHTML = `<nav class="nav">${items}</nav><div class="sidebar-scene">${SCENE}</div>`;
+  document.querySelectorAll('[data-nav]').forEach(b =>
+    b.addEventListener('click', () => State.set({ sezione: b.dataset.nav })));
+}
+
+const SEZ = { governo: 'governo', parlamento: 'parlamento', leggi: 'leggi', economia: 'economia', societa: 'societa', diplomazia: 'diplomazia', eventi: 'eventi' };
+
+function turnBar(s) {
+  return `<div class="turn-bar"><button class="turn-btn" data-act="turno" ${s.fine ? 'disabled' : ''}>${Icons.crown}<span>Entra nel nuovo turno</span><span class="arr">›</span></button></div>`;
+}
+
+let ultimaSezione = null;
+function renderMain(s) {
+  const main = document.getElementById('main');
+  const right = document.getElementById('right');
+  const stessa = ultimaSezione === s.sezione;
+  const top = main.scrollTop, topR = right.scrollTop;
+  if (s.sezione === 'panoramica') {
+    main.className = 'pan';
+    main.innerHTML = renderPanoramica(s) + turnBar(s);
+  } else {
+    main.className = 'sec';
+    main.innerHTML = Sezioni[SEZ[s.sezione]](s) + turnBar(s);
+  }
+  right.className = 'dx';
+  right.innerHTML = renderDestra(s);
+  if (stessa) { main.scrollTop = top; right.scrollTop = topR; }
+  ultimaSezione = s.sezione;
+}
+
+// ---------- finestre modali e avvisi ----------
+function renderModal(s) {
+  const el = document.getElementById('modal');
+  const m = s.ui.modal;
+  if (!m) { el.className = ''; el.innerHTML = ''; return; }
+  const sg = Motore.sg, it = Motore.it;
+  let html = '';
+  if (m.tipo === 'report') {
+    const r = m.rep, d = r.delta;
+    const cella = (n, v, bene) => `<div><span>${n}</span><b class="${bene ? 'pos' : 'neg'}">${v}</b></div>`;
+    html = `<div class="modal-box"><header>Turno ${r.turno}</header><div class="mb">
+      <div class="rep-grid">
+        ${cella('PIL', sg(s.pil) + '%', s.pil >= 0)}${cella('Occupazione', sg(d.lav, 2) + ' p.p.', d.lav >= 0)}${cella('Consenso', sg(d.cons) + ' p.p.', d.cons >= 0)}
+        ${cella('Stabilità', sg(d.stab) + ' p.p.', d.stab >= 0)}${cella('Tesoro', sg(d.tes, 2) + ' mld', d.tes >= 0)}${cella('Debito', sg(d.deb, 2) + ' p.p.', d.deb <= 0)}
+      </div>
+      ${r.voti.length ? '<h4>Votazioni in parlamento</h4><ul>' + r.voti.map(v => `<li><b>${v.nome}</b>: ${v.ok ? 'approvata' : 'respinta'} (${v.si}–${v.no})</li>`).join('') + '</ul>' : ''}
+      ${r.elezioni ? `<h4>Elezioni politiche</h4><div>La coalizione di governo ottiene <b>${r.elezioni.gov}</b> seggi su 200 (Verdi ${r.elezioni.verdi}, Blu ${r.elezioni.blu}).</div>` : ''}
+      ${r.eventi.length ? '<h4>Nuovo evento</h4><ul>' + r.eventi.map(t => `<li>${t}</li>`).join('') + '</ul>' : ''}
+      ${r.scaduti.length ? '<h4>Eventi non gestiti</h4><ul>' + r.scaduti.map(t => `<li>${t}: è stata applicata la scelta predefinita.</li>`).join('') + '</ul>' : ''}
+      ${r.avvisi.length ? '<h4>Attenzione</h4><ul>' + r.avvisi.map(t => `<li>${t}</li>`).join('') + '</ul>' : ''}
+      </div><div class="foot"><button class="btn" data-act="chiudi">Continua</button></div></div>`;
+  } else if (m.tipo === 'fine') {
+    const f = m.rep.fine, vit = f.esito === 'vittoria';
+    html = `<div class="modal-box ${vit ? 'win' : ''}"><header>${vit ? 'Vittoria' : 'Sconfitta'}: ${f.titolo}</header><div class="mb">
+      ${vit ? `<div class="big-score">${f.punteggio}</div><div style="text-align:center">punti di equilibrio su 100</div>` : ''}
+      <p style="margin-top:10px">${f.testo}</p>
+      <p style="margin-top:8px">Turno ${s.turno} · Consenso ${Math.round(s.consenso)}% · Stabilità ${Math.round(s.stabilita)}% · Debito ${it(s.debito)}%</p></div>
+      <div class="foot"><button class="btn" data-act="nuova">Nuova partita</button><button class="btn ghost" data-act="chiudi">Chiudi</button></div></div>`;
+  } else if (m.tipo === 'aiuto') {
+    html = `<div class="modal-box"><header>Come si gioca</header><div class="mb">
+      <p>Governi il Regno di Valdoria fino al turno ${s.turniTotali}. Ogni turno è una settimana: premi <b>«Entra nel nuovo turno»</b> per farla scorrere.</p>
+      <h4>Cosa puoi fare</h4><ul>
+      <li><b>Leggi</b>: proponi una legge; passa in commissione, poi alla Camera (101 voti su 200), al Senato (51 su 100) e infine al Re per la promulgazione. Gli effetti partono dopo la promulgazione.</li>
+      <li><b>Economia</b>: regola tasse e spese. Tieni il saldo in positivo.</li>
+      <li><b>Eventi</b>: decidi prima che scadano, o sarà scelta la soluzione peggiore.</li>
+      <li><b>Governo</b>: assegna gli incarichi, effettua rimpasti e usa le direttive dei ministri. Scandali e dimissioni possono lasciare ministeri vacanti.</li>
+      <li><b>Diplomazia</b>: accordi e patti con le nazioni vicine.</li><li><b>Parlamento</b>: i partner possono avanzare richieste; accoglierle, negoziarle o respingerle cambia la fiducia nella coalizione. L’opposizione aumenta la pressione quando gli indicatori peggiorano.</li><li><b>Crisi di governo</b>: una sfiducia approvata apre consultazioni. Scegli un Governo di compromesso, di unità nazionale o nuove elezioni; durante le consultazioni il tempo è sospeso.</li><li><b>Patti di maggioranza</b>: gli accordi programmatici costano risorse e rafforzano la fiducia dei partner.</li></ul>
+      <h4>Come si perde</h4><div>Consenso o stabilità sotto il 10%, debito oltre il 150% del PIL, o tesoro sotto −15 mld per 12 turni di fila.</div>
+      </div><div class="foot"><button class="btn" data-act="chiudi">Ho capito</button></div></div>`;
+  } else if (m.tipo === 'impost') {
+    html = `<div class="modal-box"><header>Impostazioni</header><div class="mb">
+      <p>La partita si salva da sola alla fine di ogni turno, in questo browser.</p></div>
+      <div class="foot"><button class="btn sec" data-act="nuova">Nuova partita</button><button class="btn" data-act="chiudi">Chiudi</button></div></div>`;
+  }
+  el.className = 'on';
+  el.innerHTML = html;
+}
+
+let toastT = null;
+function toast(msg, ok) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'on' + (ok ? '' : ' err');
+  clearTimeout(toastT);
+  toastT = setTimeout(() => { t.className = ''; }, 2300);
+}
+
+function renderAll(s) { renderTopbar(s); renderSidebar(s); renderMain(s); renderModal(s); }
+
+// ---------- azioni ----------
+function eseguiTurno() {
+  if (State.politica?.crisiGoverno) { toast('Consultazioni in corso: forma prima il nuovo Governo o convoca elezioni.', false); return null; }
+  const rep = Motore.turno();
+  if (!rep) { toast('Il turno non può avanzare in questo momento.', false); return null; }
+  State.ui.modal = rep.fine ? { tipo: 'fine', rep } : { tipo: 'report', rep };
+  return null;
+}
+const AZ = {
+  turno: eseguiTurno,
+  politica: d => Motore.decisionePolitica(d.id, d.scelta),
+  sfiducia: () => Motore.votaSfiducia(),
+  governo: d => Motore.formaGoverno(d.scelta),
+  programma: d => Motore.negoziaProgramma(d.partito,d.tema),
+  campagna: d => Motore.campagnaElettorale(d.partito,d.strategia),
+  leadership: d => Motore.gestisciLeadership(d.partito,d.scelta),
+  scandalo: d => Motore.gestisciScandalo(d.scelta),
+  emendamento: d => Motore.decidiEmendamento(d.id,d.scelta),
+  camera: d => Motore.votaCamera(d.id), senato: d => Motore.votaSenato(d.id), promulga: d => Motore.promulga(d.id),
+  proponi: d => Motore.proponi(d.id), ritira: d => Motore.ritira(d.id), negozia: d => Motore.negozia(d.id), abroga: d => Motore.abroga(d.id),
+  scegli: d => Motore.scegli(+d.uid, +d.idx), rimborsa: () => Motore.rimborsa(), direttiva: d => Motore.direttiva(d.id), diplo: d => Motore.diplo(d.id, d.az),
+  tab: d => { State.ui.leggiTab = d.id; return null; },
+  cat: d => { State.ui.leggiCat = d.id; return null; },
+  chiudi: () => { State.ui.modal = null; return null; },
+  nuova: () => { State.cancellaSalvataggio(); State.nuova(true); return null; },
+  aiuto: () => { State.ui.modal = { tipo: 'aiuto' }; return null; },
+  impost: () => { State.ui.modal = { tipo: 'impost' }; return null; }
+};
+
+document.addEventListener('click', ev => {
+  const a = ev.target.closest('[data-act]');
+  if (a && !a.disabled) {
+    const res = AZ[a.dataset.act] ? AZ[a.dataset.act](a.dataset) : null;
+    if (res && res.msg) toast(res.msg, res.ok);
+    if (!State.fine || a.dataset.act === 'nuova') State.salva();
+    State.emit();
+    return;
+  }
+  const g = ev.target.closest('[data-go]');
+  if (g) {
+    if (g.dataset.min) State.ui.ministro = g.dataset.min;
+    State.set({ sezione: g.dataset.go });
+  }
+});
+document.addEventListener('input', ev => {
+  const r = ev.target.closest('[data-budget]');
+  if (r) { const o = document.getElementById('o-' + r.dataset.budget); if (o) o.textContent = r.value + (r.dataset.unita || ''); }
+});
+document.addEventListener('change', ev => {
+  const rimp = ev.target.closest('[data-rimpasto]');
+  if (rimp) {
+    const res = Motore.rimpasto(rimp.dataset.rimpasto, rimp.value);
+    if (res && res.msg) toast(res.msg, res.ok);
+    State.salva(); State.emit(); return;
+  }
+  const r = ev.target.closest('[data-budget]');
+  if (r) { Motore.setBudget(r.dataset.budget, +r.value); State.salva(); State.emit(); }
+});
+
+// ---------- adattamento alla finestra ----------
+function adatta() {
+  if (window.matchMedia('(max-width: 900px)').matches) {
+    const game = document.getElementById('game');
+    game.style.transform = 'none';
+    game.style.left = '0'; game.style.top = '0';
+    return;
+  }
+  const sc = Math.min(window.innerWidth / 1672, window.innerHeight / 941);
+  const x = (window.innerWidth - 1672 * sc) / 2, y = (window.innerHeight - 941 * sc) / 2;
+  document.getElementById('game').style.transform = `translate(${x}px,${y}px) scale(${sc})`;
+}
+window.addEventListener('resize', adatta);
+adatta();
+
+// ---------- avvio ----------
+State.nuova(true);
+State.carica();
+State.subscribe(renderAll);
+renderAll(State);
+
+</script>
+</body>
+</html>
